@@ -22,5 +22,6 @@ plugins {
 include(":app")
 include(":utils")
 include(":users:users-infrastructure")
+include(":users:users-service")
 
 rootProject.name = "Notification"

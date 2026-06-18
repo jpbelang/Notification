@@ -17,7 +17,7 @@ This is the suggested way to use Gradle in production projects.
 [Learn more about Gradle tasks](https://docs.gradle.org/current/userguide/command_line_interface.html#common_tasks).
 
 This project follows the suggested multi-module setup and consists of the `app`, `utils`, and `users` subprojects.
-The `users` project contains the `users-infrastructure` submodule.
+The `users` project contains the `users-infrastructure` and `users-service` submodules.
 The shared build logic was extracted to a convention plugin located in `buildSrc`.
 
 This project uses a version catalog (see `gradle/libs.versions.toml`) to declare and version dependencies
