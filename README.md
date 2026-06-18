@@ -18,7 +18,23 @@ This is the suggested way to use Gradle in production projects.
 
 This project follows the suggested multi-module setup and consists of the `app`, `utils`, and `users` subprojects.
 The `users` project contains the `users-infrastructure` and `users-service` submodules.
+`users-infrastructure` includes an AWS CDK setup in Kotlin for infrastructure management.
 The shared build logic was extracted to a convention plugin located in `buildSrc`.
+
+### AWS CDK Setup
+The infrastructure for the `users` service is defined using AWS CDK in the `users-infrastructure` module.
+To use it, you need to have `node` and the AWS CDK CLI installed.
+
+- **CDK App:** `users/users-infrastructure/src/main/kotlin/org/example/users/infrastructure/cdk/UsersInfrastructureApp.kt`
+- **CDK Stack:** `users/users-infrastructure/src/main/kotlin/org/example/users/infrastructure/cdk/UsersInfrastructureStack.kt`
+- **Configuration:** `users/users-infrastructure/cdk.json`
+
+To synthesize the CloudFormation template:
+```bash
+cd users/users-infrastructure
+cdk synth
+```
+(This will use `./gradlew -q :users:users-infrastructure:run` as the executable command).
 
 This project uses a version catalog (see `gradle/libs.versions.toml`) to declare and version dependencies,
 a `.junie/AGENTS.md` file for project-specific guidelines,
