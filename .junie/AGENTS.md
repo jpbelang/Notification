@@ -5,7 +5,7 @@
 - **Platform:** JVM (Target Version: 23)
 - **Build System:** Gradle (Kotlin DSL)
 - **Testing:** Kotest
-- **Dependency Injection:** Hilt
+- **Dependency Injection:** Micronaut, with as few annotations as possible.
 
 ## Architectural style
 - Hexagonal architecture
