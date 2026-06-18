@@ -14,6 +14,14 @@ kotlin {
     jvmToolchain(23)
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_23)
+        allWarningsAsErrors.set(true)
+        freeCompilerArgs.add("-Xjsr305=strict")
+    }
+}
+
 tasks.withType<Test>().configureEach {
     // Configure all test Gradle tasks to use JUnitPlatform.
     useJUnitPlatform()
