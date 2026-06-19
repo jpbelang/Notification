@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.micronaut.serde.jackson)
     implementation(libs.awsLambdaEvents)
     implementation(libs.aws.sdk.dynamodb)
+    implementation(libs.aws.sdk.cognito)
     implementation(libs.micronaut.aws.sdk.v2)
     ksp(libs.micronaut.inject.kotlin)
     ksp(libs.micronaut.serde.processor)

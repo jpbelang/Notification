@@ -5,6 +5,7 @@ import software.amazon.awscdk.RemovalPolicy
 import software.amazon.awscdk.Stack
 import software.amazon.awscdk.StackProps
 import software.amazon.awscdk.services.apigateway.LambdaRestApi
+import software.amazon.awscdk.services.cognito.*
 import software.amazon.awscdk.services.dynamodb.Attribute
 import software.amazon.awscdk.services.dynamodb.AttributeType
 import software.amazon.awscdk.services.dynamodb.Table
@@ -24,6 +25,16 @@ class UsersInfrastructureStack(
             .removalPolicy(RemovalPolicy.DESTROY)
             .build()
 
+        val userPool = UserPool.Builder.create(this, "UserPool")
+            .selfSignUpEnabled(true)
+            .signInAliases(SignInAliases.builder().email(true).build())
+            .autoVerify(AutoVerifiedAttrs.builder().email(true).build())
+            .customAttributes(mapOf(
+                "userId" to StringAttribute.Builder.create().mutable(true).build()
+            ))
+            .removalPolicy(RemovalPolicy.DESTROY)
+            .build()
+
         val createUserHandler = Function.Builder.create(this, "CreateUserHandler")
             .runtime(Runtime.JAVA_21)
             .handler("io.micronaut.function.aws.MicronautRequestHandler")
@@ -35,10 +46,12 @@ class UsersInfrastructureStack(
                 "MICRONAUT_ENVIRONMENTS" to "lambda",
                 "PERSISTENCE_TYPE" to "dynamodb",
                 "PERSISTENCE_DYNAMODB_TABLE_NAME" to usersTable.tableName,
+                "PERSISTENCE_COGNITO_USER_POOL_ID" to userPool.userPoolId
             ))
             .build()
 
         usersTable.grantReadWriteData(createUserHandler)
+        userPool.grant(createUserHandler, "cognito-idp:AdminCreateUser")
 
         LambdaRestApi.Builder.create(this, "UsersApi")
             .handler(createUserHandler)
