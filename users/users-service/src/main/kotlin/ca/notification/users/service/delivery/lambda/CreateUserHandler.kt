@@ -29,9 +29,16 @@ class CreateUserHandler(
             )
         )
 
+        val responseBody = CreateUserResponse(
+            id = user.id.toString(),
+            name = user.name,
+            email = user.email,
+            phoneNumber = user.phoneNumber
+        )
+
         return APIGatewayProxyResponseEvent().apply {
             statusCode = 201
-            body = "User created: ${user.id} (${user.name})"
+            body = jsonMapper.writeValueAsString(responseBody)
         }
     }
 
@@ -41,5 +48,13 @@ class CreateUserHandler(
         val email: String,
         val phoneNumber: String,
         val password: String
+    )
+
+    @Serdeable
+    data class CreateUserResponse(
+        val id: String,
+        val name: String,
+        val email: String,
+        val phoneNumber: String
     )
 }
