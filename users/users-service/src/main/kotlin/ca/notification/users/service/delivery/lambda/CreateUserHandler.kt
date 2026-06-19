@@ -5,7 +5,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import io.micronaut.json.JsonMapper
-import io.micronaut.serde.annotation.Serdeable
 import jakarta.inject.Singleton
 import ca.notification.users.service.port.inbound.CreateUserUseCase
 
@@ -41,20 +40,4 @@ class CreateUserHandler(
             body = jsonMapper.writeValueAsString(responseBody)
         }
     }
-
-    @Serdeable
-    data class CreateUserRequest(
-        val name: String,
-        val email: String,
-        val phoneNumber: String,
-        val password: String
-    )
-
-    @Serdeable
-    data class CreateUserResponse(
-        val id: String,
-        val name: String,
-        val email: String,
-        val phoneNumber: String
-    )
 }
