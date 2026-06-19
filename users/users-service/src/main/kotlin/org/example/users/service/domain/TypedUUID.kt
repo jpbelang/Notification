@@ -25,9 +25,7 @@ class TypedUUID<T> private constructor(val uuid: UUID) {
 
         other as TypedUUID<*>
 
-        if (uuid != other.uuid) return false
-
-        return true
+        return uuid == other.uuid
     }
 
     override fun toString() = asString()
