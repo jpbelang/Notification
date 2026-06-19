@@ -14,6 +14,7 @@ micronautAws = "4.8.0"
 micronautSerde = "2.11.0"
 ksp = "2.1.0-1.0.29"
 kotest = "5.9.1"
+shadow = "8.3.5"
 
 [libraries]
 micronaut-runtime = { module = "io.micronaut:micronaut-runtime", version.ref = "micronaut" }
@@ -42,3 +43,4 @@ kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 micronaut-application = { id = "io.micronaut.application", version = "4.4.4" }
 micronaut-library = { id = "io.micronaut.library", version = "4.4.4" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

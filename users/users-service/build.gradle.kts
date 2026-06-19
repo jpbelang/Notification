@@ -3,6 +3,7 @@ plugins {
     id("buildsrc.convention.kotlin-jvm")
     alias(libs.plugins.ksp)
     alias(libs.plugins.micronaut.library)
+    alias(libs.plugins.shadow)
 }
 
 micronaut {
@@ -25,4 +26,10 @@ dependencies {
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.micronaut.test.kotest5)
     testImplementation(kotlin("test"))
+}
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    archiveClassifier.set("all")
+    archiveFileName.set("users-service-all.jar")
+    mergeServiceFiles()
 }
