@@ -9,7 +9,7 @@ micronaut {
     testRuntime("kotest5")
     processing {
         incremental(true)
-        annotations("org.example.*")
+        annotations("ca.notification.*")
     }
 }
 

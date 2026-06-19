@@ -15,5 +15,5 @@ dependencies {
 application {
     // Define the Fully Qualified Name for the application main class
     // (Note that Kotlin compiles `App.kt` to a class with FQN `com.example.app.AppKt`.)
-    mainClass = "org.example.app.AppKt"
+    mainClass = "ca.notification.app.AppKt"
 }

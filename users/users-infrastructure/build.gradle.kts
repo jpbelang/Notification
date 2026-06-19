@@ -5,7 +5,7 @@ plugins {
 }
 
 application {
-    mainClass.set("org.example.users.infrastructure.cdk.UsersInfrastructureAppKt")
+    mainClass.set("ca.notification.users.infrastructure.cdk.UsersInfrastructureAppKt")
 }
 
 

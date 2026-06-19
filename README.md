@@ -25,8 +25,8 @@ The shared build logic was extracted to a convention plugin located in `buildSrc
 The infrastructure for the `users` service is defined using AWS CDK in the `users-infrastructure` module.
 To use it, you need to have `node` and the AWS CDK CLI installed.
 
-- **CDK App:** `users/users-infrastructure/src/main/kotlin/org/example/users/infrastructure/cdk/UsersInfrastructureApp.kt`
-- **CDK Stack:** `users/users-infrastructure/src/main/kotlin/org/example/users/infrastructure/cdk/UsersInfrastructureStack.kt`
+- **CDK App:** `users/users-infrastructure/src/main/kotlin/ca/notification/users/infrastructure/cdk/UsersInfrastructureApp.kt`
+- **CDK Stack:** `users/users-infrastructure/src/main/kotlin/ca/notification/users/infrastructure/cdk/UsersInfrastructureStack.kt`
 - **Configuration:** `users/users-infrastructure/cdk.json`
 
 To synthesize the CloudFormation template:
