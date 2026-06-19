@@ -17,7 +17,8 @@ class CreateUserHandlerTest(
         val body = mapOf(
             "name" to "John Doe",
             "email" to "john@example.com",
-            "phoneNumber" to "555-1234"
+            "phoneNumber" to "555-1234",
+            "password" to "secret"
         )
         val request = APIGatewayProxyRequestEvent().apply {
             this.body = jsonMapper.writeValueAsString(body)

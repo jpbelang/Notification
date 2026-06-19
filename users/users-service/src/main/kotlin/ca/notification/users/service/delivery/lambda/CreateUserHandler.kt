@@ -24,7 +24,8 @@ class CreateUserHandler(
             CreateUserUseCase.Command(
                 request.name,
                 request.email,
-                request.phoneNumber
+                request.phoneNumber,
+                request.password
             )
         )
 
@@ -38,6 +39,7 @@ class CreateUserHandler(
     data class CreateUserRequest(
         val name: String,
         val email: String,
-        val phoneNumber: String
+        val phoneNumber: String,
+        val password: String
     )
 }
