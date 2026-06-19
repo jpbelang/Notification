@@ -1,7 +1,9 @@
 package org.example.users.service.domain
 
+import java.util.UUID
+
 data class User(
-    val id: String,
+    val id: UUID,
     val name: String,
     val email: String
 )

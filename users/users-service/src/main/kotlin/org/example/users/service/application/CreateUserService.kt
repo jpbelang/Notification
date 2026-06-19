@@ -7,7 +7,7 @@ import java.util.*
 class CreateUserService : CreateUserUseCase {
     override fun execute(command: CreateUserUseCase.Command): User {
         return User(
-            id = UUID.randomUUID().toString(),
+            id = UUID.randomUUID(),
             name = command.name,
             email = command.email
         )
