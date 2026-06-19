@@ -1,5 +1,8 @@
 package ca.notification.users.service.delivery.lambda
 
+import ca.notification.users.service.adapter.persistence.InMemoryUserRepository
+import ca.notification.users.service.domain.TypedUUID
+import ca.notification.users.service.domain.User
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -12,7 +15,8 @@ import io.micronaut.test.extensions.kotest5.annotation.MicronautTest
 @MicronautTest
 class CreateUserHandlerTest(
     private val handler: CreateUserHandler,
-    private val jsonMapper: JsonMapper
+    private val jsonMapper: JsonMapper,
+    private val userRepository: InMemoryUserRepository
 ) : StringSpec({
 
     "should create a user and return 201" {
@@ -44,5 +48,13 @@ class CreateUserHandlerTest(
         parsedResponse["phoneNumber"] shouldBe "555-1234"
         parsedResponse["id"] shouldNotBe null
         parsedResponse.containsKey("password") shouldBe false
+
+        // Verify user was saved in repository without password
+        val savedUserId = TypedUUID.fromString<User>(parsedResponse["id"] as String)
+        val savedUser = userRepository.findById(savedUserId)
+        savedUser shouldNotBe null
+        savedUser?.name shouldBe "John Doe"
+        savedUser?.email shouldBe "john@example.com"
+        savedUser?.phoneNumber shouldBe "555-1234"
     }
 })
