@@ -9,7 +9,8 @@ class CreateUserService : CreateUserUseCase {
         return User(
             id = TypedUUID.create(),
             name = command.name,
-            email = command.email
+            email = command.email,
+            phoneNumber = command.phoneNumber
         )
     }
 }

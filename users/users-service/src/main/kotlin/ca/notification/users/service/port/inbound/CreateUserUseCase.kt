@@ -7,6 +7,7 @@ interface CreateUserUseCase {
 
     data class Command(
         val name: String,
-        val email: String
+        val email: String,
+        val phoneNumber: String
     )
 }

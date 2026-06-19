@@ -15,7 +15,8 @@ class CreateUserHandlerTest(
         val request = APIGatewayProxyRequestEvent().apply {
             queryStringParameters = mapOf(
                 "name" to "John Doe",
-                "email" to "john@example.com"
+                "email" to "john@example.com",
+                "phoneNumber" to "555-1234"
             )
         }
 
