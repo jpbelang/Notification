@@ -4,5 +4,6 @@ plugins {
 }
 
 dependencies {
+    testImplementation(libs.kotest.runner.junit5)
     testImplementation(kotlin("test"))
 }
