@@ -1,4 +1,4 @@
-package org.example.users.infrastructure.delivery.lambda
+package org.example.users.service.delivery.lambda
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
 import io.kotest.core.spec.style.StringSpec
