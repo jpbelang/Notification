@@ -1,6 +1,7 @@
 package ca.notification.users.service.delivery.lambda
 
 import ca.notification.users.service.adapter.persistence.InMemoryUserRepository
+import ca.notification.users.service.adapter.persistence.InMemoryCredentialsRepository
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
@@ -16,7 +17,8 @@ import io.micronaut.test.extensions.kotest5.annotation.MicronautTest
 class CreateUserHandlerTest(
     private val handler: CreateUserHandler,
     private val jsonMapper: JsonMapper,
-    private val userRepository: InMemoryUserRepository
+    private val userRepository: InMemoryUserRepository,
+    private val credentialsRepository: InMemoryCredentialsRepository
 ) : StringSpec({
 
     "should create a user and return 201" {
@@ -56,5 +58,11 @@ class CreateUserHandlerTest(
         savedUser?.name shouldBe "John Doe"
         savedUser?.email shouldBe "john@example.com"
         savedUser?.phoneNumber shouldBe "555-1234"
+
+        // Verify credentials were saved separately with password
+        val savedCredentials = credentialsRepository.findByUserId(savedUserId)
+        savedCredentials shouldNotBe null
+        savedCredentials?.email shouldBe "john@example.com"
+        savedCredentials?.password shouldBe "secret"
     }
 })
