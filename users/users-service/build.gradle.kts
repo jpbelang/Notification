@@ -20,11 +20,14 @@ dependencies {
     implementation(libs.micronaut.aws.lambda.events.serde)
     implementation(libs.micronaut.serde.jackson)
     implementation(libs.awsLambdaEvents)
+    implementation(libs.aws.sdk.dynamodb)
+    implementation(libs.micronaut.aws.sdk.v2)
     ksp(libs.micronaut.inject.kotlin)
     ksp(libs.micronaut.serde.processor)
 
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.micronaut.test.kotest5)
+    testImplementation(libs.mockk)
     testImplementation(kotlin("test"))
 }
 

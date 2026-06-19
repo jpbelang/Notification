@@ -23,6 +23,7 @@
   - `users`: User management domain.
     - `users-infrastructure`: External integrations and persistence.
     - `users-service`: Business logic.
+  - Single table design per service.
 
 ## Gradle Conventions
 - Shared build logic is located in `buildSrc/src/main/kotlin/kotlin-jvm.gradle.kts`.
