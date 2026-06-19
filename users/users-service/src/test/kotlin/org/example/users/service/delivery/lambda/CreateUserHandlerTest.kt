@@ -7,10 +7,11 @@ import io.kotest.matchers.string.shouldContain
 import io.micronaut.test.extensions.kotest5.annotation.MicronautTest
 
 @MicronautTest
-class CreateUserHandlerTest : StringSpec({
+class CreateUserHandlerTest(
+    private val handler: CreateUserHandler
+) : StringSpec({
 
     "should create a user and return 201" {
-        val handler = CreateUserHandler()
         val request = APIGatewayProxyRequestEvent().apply {
             queryStringParameters = mapOf(
                 "name" to "John Doe",
@@ -18,12 +19,10 @@ class CreateUserHandlerTest : StringSpec({
             )
         }
 
-        val response = handler.execute(request)
+        val response = handler.handleRequest(request, null)
 
         response.statusCode shouldBe 201
         response.body shouldContain "User created"
         response.body shouldContain "John Doe"
-        
-        handler.close()
     }
 })

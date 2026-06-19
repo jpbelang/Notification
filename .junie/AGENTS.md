@@ -5,7 +5,7 @@
 - **Platform:** JVM (Target Version: 23)
 - **Build System:** Gradle (Kotlin DSL)
 - **Testing:** Kotest
-- **Dependency Injection:** Micronaut, with as few annotations as possible.
+- **Dependency Injection:** Micronaut, always using constructor injection when possible
 
 ## Architectural style
 - Hexagonal architecture
@@ -27,3 +27,8 @@
 ## Gradle Conventions
 - Shared build logic is located in `buildSrc/src/main/kotlin/kotlin-jvm.gradle.kts`.
 - Use the version catalog in `gradle/libs.versions.toml` for dependency management.
+
+## Commit Messages
+- Use imperative mood (e.g., "Add feature X" instead of "Added feature X").
+- Keep messages concise and meaningful.
+- Postfix them with a short quote from The Lord of the Rings of Dune.
