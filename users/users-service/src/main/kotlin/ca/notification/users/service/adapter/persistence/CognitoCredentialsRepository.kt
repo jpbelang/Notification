@@ -1,0 +1,36 @@
+package ca.notification.users.service.adapter.persistence
+
+import ca.notification.users.service.domain.User
+import ca.notification.users.service.port.outbound.CredentialsRepository
+import io.micronaut.context.annotation.Property
+import io.micronaut.context.annotation.Requires
+import jakarta.inject.Singleton
+import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
+
+@Singleton
+@Requires(property = "persistence.type", value = "cognito")
+class CognitoCredentialsRepository(
+    private val cognitoClient: CognitoIdentityProviderClient,
+    @Property(name = "persistence.cognito.user-pool-id") private val userPoolId: String
+) : CredentialsRepository {
+
+    override fun save(user: User) {
+        val request = AdminCreateUserRequest.builder()
+            .userPoolId(userPoolId)
+            .username(user.email)
+            .temporaryPassword(user.password)
+            .userAttributes(
+                AttributeType.builder().name("email").value(user.email).build(),
+                AttributeType.builder().name("email_verified").value("true").build(),
+                AttributeType.builder().name("name").value(user.name).build(),
+                AttributeType.builder().name("phone_number").value(user.phoneNumber).build(),
+                AttributeType.builder().name("custom:userId").value(user.id.toString()).build()
+            )
+            .messageAction("SUPPRESS")
+            .build()
+
+        cognitoClient.adminCreateUser(request)
+    }
+}
