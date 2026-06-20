@@ -9,6 +9,8 @@
 
 ## Architectural style
 - Hexagonal architecture
+- Keep the core business logic free of Micronaut dependencies.
+- Try to keep the micronaut in a micronaut package.  
 
 ## Coding Standards
 - Follow official Kotlin coding conventions.
