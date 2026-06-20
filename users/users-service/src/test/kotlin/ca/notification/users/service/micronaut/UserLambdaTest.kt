@@ -1,7 +1,7 @@
-package ca.notification.users.service.delivery.lambda
+package ca.notification.users.service.micronaut
 
-import ca.notification.users.service.adapter.persistence.InMemoryUserRepository
 import ca.notification.users.service.adapter.persistence.InMemoryCredentialsRepository
+import ca.notification.users.service.adapter.persistence.InMemoryUserRepository
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
@@ -14,6 +14,7 @@ import io.micronaut.context.ApplicationContext
 import io.micronaut.function.aws.proxy.payload1.ApiGatewayProxyRequestEventFunction
 import io.micronaut.json.JsonMapper
 import io.micronaut.test.extensions.kotest5.annotation.MicronautTest
+import kotlin.collections.get
 
 @MicronautTest
 class UserLambdaTest(

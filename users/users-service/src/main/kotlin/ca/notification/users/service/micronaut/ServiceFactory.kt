@@ -1,4 +1,4 @@
-package ca.notification.users.service.config
+package ca.notification.users.service.micronaut
 
 import io.micronaut.context.annotation.Factory
 import jakarta.inject.Singleton

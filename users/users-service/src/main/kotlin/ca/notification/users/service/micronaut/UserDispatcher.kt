@@ -1,4 +1,4 @@
-package ca.notification.users.service.config
+package ca.notification.users.service.micronaut
 
 import ca.notification.users.service.delivery.lambda.CreateUserRequest
 import ca.notification.users.service.delivery.lambda.CreateUserResponse
