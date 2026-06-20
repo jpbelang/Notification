@@ -17,6 +17,7 @@ micronaut {
 dependencies {
     implementation(libs.micronaut.runtime)
     implementation(libs.micronaut.function.aws)
+    implementation(libs.micronaut.function.aws.api.proxy)
     implementation(libs.micronaut.aws.lambda.events.serde)
     implementation(libs.micronaut.serde.jackson)
     implementation(libs.awsLambdaEvents)

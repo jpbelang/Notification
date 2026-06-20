@@ -35,9 +35,9 @@ class UsersInfrastructureStack(
             .removalPolicy(RemovalPolicy.DESTROY)
             .build()
 
-        val createUserHandler = Function.Builder.create(this, "CreateUserHandler")
+        val usersHandler = Function.Builder.create(this, "UsersHandler")
             .runtime(Runtime.JAVA_21)
-            .handler("io.micronaut.function.aws.MicronautRequestHandler")
+            .handler("io.micronaut.function.aws.proxy.payload1.ApiGatewayProxyRequestEventFunction")
             .memorySize(512)
             .timeout(Duration.seconds(30))
             // This assumes the shadowJar task has been run and produced the fat JAR
@@ -50,11 +50,11 @@ class UsersInfrastructureStack(
             ))
             .build()
 
-        usersTable.grantReadWriteData(createUserHandler)
-        userPool.grant(createUserHandler, "cognito-idp:AdminCreateUser")
+        usersTable.grantReadWriteData(usersHandler)
+        userPool.grant(usersHandler, "cognito-idp:AdminCreateUser")
 
         LambdaRestApi.Builder.create(this, "UsersApi")
-            .handler(createUserHandler)
+            .handler(usersHandler)
             .build()
     }
 }

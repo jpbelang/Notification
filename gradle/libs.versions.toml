@@ -12,6 +12,7 @@ constructs = "10.4.2"
 micronaut = "4.7.6"
 micronautAws = "4.8.0"
 micronautSerde = "2.11.0"
+micronautAwsLambdaEventsSerde = "4.8.0"
 ksp = "2.1.0-1.0.29"
 kotest = "5.9.1"
 shadow = "8.3.5"
@@ -20,6 +21,7 @@ shadow = "8.3.5"
 micronaut-runtime = { module = "io.micronaut:micronaut-runtime", version.ref = "micronaut" }
 micronaut-inject-kotlin = { module = "io.micronaut:micronaut-inject-kotlin", version.ref = "micronaut" }
 micronaut-function-aws = { module = "io.micronaut.aws:micronaut-function-aws", version.ref = "micronautAws" }
+micronaut-function-aws-api-proxy = { module = "io.micronaut.aws:micronaut-function-aws-api-proxy", version.ref = "micronautAws" }
 micronaut-aws-lambda-events-serde = { module = "io.micronaut.aws:micronaut-aws-lambda-events-serde", version.ref = "micronautAws" }
 micronaut-serde-jackson = { module = "io.micronaut.serde:micronaut-serde-jackson", version.ref = "micronautSerde" }
 micronaut-serde-processor = { module = "io.micronaut.serde:micronaut-serde-processor", version.ref = "micronautSerde" }

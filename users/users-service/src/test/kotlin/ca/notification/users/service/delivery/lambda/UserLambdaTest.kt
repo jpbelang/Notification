@@ -10,16 +10,20 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import io.micronaut.context.ApplicationContext
+import io.micronaut.function.aws.proxy.payload1.ApiGatewayProxyRequestEventFunction
 import io.micronaut.json.JsonMapper
 import io.micronaut.test.extensions.kotest5.annotation.MicronautTest
 
 @MicronautTest
-class CreateUserHandlerTest(
-    private val handler: CreateUserHandler,
+class UserLambdaTest(
+    private val applicationContext: ApplicationContext,
     private val jsonMapper: JsonMapper,
     private val userRepository: InMemoryUserRepository,
     private val credentialsRepository: InMemoryCredentialsRepository
 ) : StringSpec({
+
+    val handler = ApiGatewayProxyRequestEventFunction(applicationContext)
 
     "should create a user and return 201" {
         val body = mapOf(
@@ -29,6 +33,8 @@ class CreateUserHandlerTest(
             "password" to "secret"
         )
         val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "POST"
+            this.path = "/users"
             this.body = jsonMapper.writeValueAsString(body)
         }
 
@@ -64,5 +70,15 @@ class CreateUserHandlerTest(
         savedCredentials shouldNotBe null
         savedCredentials?.email shouldBe "john@example.com"
         savedCredentials?.password shouldBe "secret"
+    }
+
+    "should return 404 for unknown path" {
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "GET"
+            this.path = "/unknown"
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 404
     }
 })
