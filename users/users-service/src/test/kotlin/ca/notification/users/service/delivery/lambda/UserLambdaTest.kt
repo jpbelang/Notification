@@ -81,4 +81,15 @@ class UserLambdaTest(
         val response = handler.handleRequest(request, null)
         response.statusCode shouldBe 404
     }
+
+    "should return 405 for unknown method?" {
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "GET"
+            this.path = "/users"
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 405
+    }
+
 })
