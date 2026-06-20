@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreate
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
 
 @Singleton
-@Requires(property = "persistence.type", value = "cognito")
+@Requires(property = "persistence.type", value = "aws")
 class CognitoCredentialsRepository(
     private val cognitoClient: CognitoIdentityProviderClient,
     @Property(name = "persistence.cognito.user-pool-id") private val userPoolId: String

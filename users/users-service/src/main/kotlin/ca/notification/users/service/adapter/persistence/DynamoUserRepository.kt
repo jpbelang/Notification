@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 
 @Singleton
-@Requires(property = "persistence.type", pattern = "dynamodb|cognito")
+@Requires(property = "persistence.type", value = "aws")
 class DynamoUserRepository(
     private val dynamoDbClient: DynamoDbClient,
     @Property(name = "persistence.dynamodb.table-name") private val tableName: String
