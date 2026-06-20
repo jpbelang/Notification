@@ -1,0 +1,19 @@
+### Create User
+POST {{host}}/users
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phoneNumber": "555-1234",
+  "password": "secret"
+}
+
+### Get User (Not Found / Not Implemented)
+GET {{host}}/users/123
+
+### Unknown Path
+GET {{host}}/unknown
+
+### Method Not Allowed
+GET {{host}}/users

@@ -17,6 +17,7 @@
 - Prefer immutability: use `val` over `var` where possible.
 - Use Kotlin standard library functions (e.g., `apply`, `also`, `let`, `run`) for concise code.
 - Ensure all new logic is covered by unit tests.
+- if the http schema changes, update the corresponding intellij http tests for the affected service.
 
 ## Project Structure
 - Multi-module setup:
