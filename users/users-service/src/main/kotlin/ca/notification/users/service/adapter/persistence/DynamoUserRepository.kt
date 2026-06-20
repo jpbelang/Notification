@@ -10,10 +10,10 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 
 @Singleton
-@Requires(property = "persistence.type", value = "aws")
+@Requires(property = "micronaut.environment", value = "lambda")
 class DynamoUserRepository(
     private val dynamoDbClient: DynamoDbClient,
-    @Property(name = "persistence.dynamodb.table-name") private val tableName: String
+    @Property(name = "dynamodb.table-name") private val tableName: String
 ) : UserRepository {
 
     override fun save(user: User) {

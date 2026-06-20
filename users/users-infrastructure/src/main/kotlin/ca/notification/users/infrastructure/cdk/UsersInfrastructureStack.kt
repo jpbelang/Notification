@@ -36,17 +36,16 @@ class UsersInfrastructureStack(
             .build()
 
         val usersHandler = Function.Builder.create(this, "UsersHandler")
-            .runtime(Runtime.JAVA_21)
+            .runtime(Runtime.JAVA_25)
             .handler("io.micronaut.function.aws.proxy.payload1.ApiGatewayProxyRequestEventFunction")
             .memorySize(512)
             .timeout(Duration.seconds(30))
             // This assumes the shadowJar task has been run and produced the fat JAR
             .code(Code.fromAsset("../users-service/build/libs/users-service-all.jar"))
             .environment(mapOf(
-                "MICRONAUT_ENVIRONMENTS" to "lambda",
-                "PERSISTENCE_TYPE" to "dynamodb",
-                "PERSISTENCE_DYNAMODB_TABLE_NAME" to usersTable.tableName,
-                "PERSISTENCE_COGNITO_USER_POOL_ID" to userPool.userPoolId
+                "MICRONAUT_ENVIRONMENT" to "lambda",
+                "DYNAMODB_TABLE_NAME" to usersTable.tableName,
+                "COGNITO_USER_POOL_ID" to userPool.userPoolId
             ))
             .build()
 

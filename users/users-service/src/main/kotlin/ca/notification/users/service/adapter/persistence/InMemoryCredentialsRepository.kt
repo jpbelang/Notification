@@ -8,7 +8,7 @@ import jakarta.inject.Singleton
 import java.util.concurrent.ConcurrentHashMap
 
 @Singleton
-@Requires(property = "persistence.type", value = "in-memory", defaultValue = "in-memory")
+@Requires(property = "micronaut.environment", value = "local", defaultValue = "local")
 class InMemoryCredentialsRepository : CredentialsRepository {
     private val credentials = ConcurrentHashMap<TypedUUID<User>, UserCredentials>()
 
