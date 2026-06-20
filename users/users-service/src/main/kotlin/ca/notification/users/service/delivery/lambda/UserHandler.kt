@@ -1,20 +1,12 @@
 package ca.notification.users.service.delivery.lambda
 
 import ca.notification.users.service.port.inbound.CreateUserUseCase
-import io.micronaut.http.HttpStatus
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Post
-import io.micronaut.http.annotation.Status
 
-@Controller("/users")
-class UserController(
+class UserHandler(
     private val createUserUseCase: CreateUserUseCase
 ) {
 
-    @Post("/")
-    @Status(HttpStatus.CREATED)
-    fun create(@Body request: CreateUserRequest): CreateUserResponse {
+    fun create(request: CreateUserRequest): CreateUserResponse {
         val user = createUserUseCase.execute(
             CreateUserUseCase.Command(
                 request.name,
