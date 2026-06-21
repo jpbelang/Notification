@@ -1,7 +1,7 @@
 # Notification
  
  [![Build and Test](https://github.com/jpbelang/Notification/actions/workflows/build.yml/badge.svg)](https://github.com/jpbelang/Notification/actions/workflows/build.yml)
- ![Coverage](.github/badges/coverage.svg)
+ ![Coverage](.github/badges/jacoco.svg)
  ![Branches](.github/badges/branches.svg)
  
  This project uses [Gradle](https://gradle.org/).
