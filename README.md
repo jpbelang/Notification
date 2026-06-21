@@ -1,6 +1,10 @@
 # Notification
-
-This project uses [Gradle](https://gradle.org/).
+ 
+ [![Build and Test](https://github.com/jpbelang/Notification/actions/workflows/build.yml/badge.svg)](https://github.com/jpbelang/Notification/actions/workflows/build.yml)
+ ![Coverage](.github/badges/coverage.svg)
+ ![Branches](.github/badges/branches.svg)
+ 
+ This project uses [Gradle](https://gradle.org/).
 To build and run the application, use the *Gradle* tool window by clicking the Gradle icon in the right-hand toolbar,
 or run it directly from the terminal:
 
