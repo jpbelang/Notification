@@ -16,6 +16,7 @@ micronautAwsLambdaEventsSerde = "4.8.0"
 ksp = "2.1.0-1.0.29"
 kotest = "5.9.1"
 shadow = "8.3.5"
+jacoco = "0.8.12"
 
 [libraries]
 micronaut-runtime = { module = "io.micronaut:micronaut-runtime", version.ref = "micronaut" }
