@@ -1,5 +1,5 @@
 {
-  "app": "../../gradlew -q :users:users-infrastructure:run",
+  "app": "../../gradlew -q :users:users-infrastructure:run && post/generate_environment.sh",
   "watch": {
     "include": [
       "src/main/kotlin/**"
