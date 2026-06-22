@@ -1,5 +1,6 @@
 package ca.notification.users.infrastructure.cdk
 
+import software.amazon.awscdk.CfnOutput
 import software.amazon.awscdk.Duration
 import software.amazon.awscdk.RemovalPolicy
 import software.amazon.awscdk.Stack
@@ -55,5 +56,31 @@ class UsersInfrastructureStack(
         LambdaRestApi.Builder.create(this, "UsersApi")
             .handler(usersHandler)
             .build()
+
+        CfnOutput.Builder.create(this, "UsersTableName")
+            .value(usersTable.tableName)
+            .build()
+
+        CfnOutput.Builder.create(this, "CognitoUserPoolId")
+            .value(userPool.userPoolId)
+            .build()
+
+        CfnOutput.Builder.create(this, "UsersHandlerName")
+            .value(usersHandler.functionName)
+            .build()
+
+        // Generate users-awsenv.json for SAM local
+        val handlerLogicalId = getLogicalId(usersHandler.node.defaultChild as software.amazon.awscdk.services.lambda.CfnFunction)
+        val envFile = java.io.File("users-awsenv.json")
+        val envContent = """
+{
+  "$handlerLogicalId": {
+    "DYNAMODB_TABLE_NAME": "${usersTable.tableName}",
+    "COGNITO_USER_POOL_ID": "${userPool.userPoolId}",
+    "LAMBDA_FUNCTION_NAME": "${usersHandler.functionName}"
+  }
+}
+"""
+        envFile.writeText(envContent.trim())
     }
 }
