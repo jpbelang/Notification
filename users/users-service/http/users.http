@@ -5,8 +5,8 @@ Content-Type: application/json
 {
   "name": "John Doe",
   "email": "john@example.com",
-  "phoneNumber": "555-1234",
-  "password": "secret"
+  "phoneNumber": "+15145559614",
+  "password": "<Secret!>"
 }
 
 ### Get User (Not Found / Not Implemented)

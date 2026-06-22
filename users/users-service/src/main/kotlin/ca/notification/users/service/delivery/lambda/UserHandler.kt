@@ -7,6 +7,13 @@ class UserHandler(
 ) {
 
     fun create(request: CreateUserRequest): CreateUserResponse {
+
+        println("Creating user with request: $request")
+        println("Environment variables:")
+        System.getenv().forEach { (key, value) ->
+            println("$key = $value")
+        }
+
         val user = createUserUseCase.execute(
             CreateUserUseCase.Command(
                 request.name,
