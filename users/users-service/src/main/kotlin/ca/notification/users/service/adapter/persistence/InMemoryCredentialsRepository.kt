@@ -1,5 +1,6 @@
 package ca.notification.users.service.adapter.persistence
 
+import ca.notification.users.service.domain.NewUser
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.port.outbound.CredentialsRepository
@@ -12,13 +13,14 @@ import java.util.concurrent.ConcurrentHashMap
 class InMemoryCredentialsRepository : CredentialsRepository {
     private val credentials = ConcurrentHashMap<TypedUUID<User>, UserCredentials>()
 
-    override fun save(user: User): TypedUUID<User> {
-        credentials[user.id] = UserCredentials(
-            userId = user.id,
+    override fun save(user: NewUser): TypedUUID<User> {
+        val userId = TypedUUID.create<User>()
+        credentials[userId] = UserCredentials(
+            userId = userId,
             email = user.email,
             password = user.password
         )
-        return user.id
+        return userId
     }
 
     fun findByUserId(userId: TypedUUID<User>): UserCredentials? = credentials[userId]

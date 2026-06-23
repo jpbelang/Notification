@@ -21,8 +21,7 @@ class CognitoCredentialsRepositoryTest : StringSpec({
     val repository = CognitoCredentialsRepository(cognitoClient, userPoolId)
 
     "should save credentials to cognito and return sub as user id" {
-        val user = User(
-            id = TypedUUID.create(),
+        val user = User.createNew(
             name = "John Doe",
             email = "john@example.com",
             phoneNumber = "555-1234",
@@ -50,7 +49,6 @@ class CognitoCredentialsRepositoryTest : StringSpec({
                 attributes["email_verified"] shouldBe "true"
                 attributes["name"] shouldBe user.name
                 attributes["phone_number"] shouldBe user.phoneNumber
-                attributes["custom:userId"] shouldBe user.id.toString()
                 it.messageActionAsString() shouldBe "SUPPRESS"
             })
         }

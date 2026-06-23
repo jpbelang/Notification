@@ -12,7 +12,7 @@ class InMemoryUserRepositoryTest : StringSpec({
 
     "should save and find a user" {
         val userId = TypedUUID.create<User>()
-        val user = User(
+        val user = User.from(
             id = userId,
             name = "Jane Doe",
             email = "jane@example.com",
@@ -37,8 +37,8 @@ class InMemoryUserRepositoryTest : StringSpec({
 
     "should overwrite existing user with same id" {
         val userId = TypedUUID.create<User>()
-        val user1 = User(userId, "User One", "one@example.com", "111", "pass1")
-        val user2 = User(userId, "User Two", "two@example.com", "222", "pass2")
+        val user1 = User.from(userId, "User One", "one@example.com", "111", "pass1")
+        val user2 = User.from(userId, "User Two", "two@example.com", "222", "pass2")
 
         repository.save(user1)
         repository.save(user2)

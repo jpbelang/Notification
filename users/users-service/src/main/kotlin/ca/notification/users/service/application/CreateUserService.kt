@@ -1,5 +1,6 @@
 package ca.notification.users.service.application
 
+import ca.notification.users.service.domain.NewUser
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.port.inbound.CreateUserUseCase
@@ -11,16 +12,15 @@ class CreateUserService(
     private val credentialsRepository: CredentialsRepository
 ) : CreateUserUseCase {
     override fun execute(command: CreateUserUseCase.Command): User {
-        val user = User(
-            id = TypedUUID.create(),
+        val newUser = User.createNew(
             name = command.name,
             email = command.email,
             phoneNumber = command.phoneNumber,
             password = command.password
         )
-        val actualId = credentialsRepository.save(user)
-        val finalUser = user.copy(id = actualId)
-        userRepository.save(finalUser)
-        return finalUser
+        val actualId = credentialsRepository.save(newUser)
+        val user = User.withId(newUser, actualId)
+        userRepository.save(user)
+        return user
     }
 }

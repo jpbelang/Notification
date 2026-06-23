@@ -18,7 +18,7 @@ class DynamoUserRepositoryTest : StringSpec({
     val repository = DynamoUserRepository(dynamoDbClient, tableName)
 
     "should save user to dynamodb" {
-        val user = User(
+        val user = User.from(
             id = TypedUUID.create(),
             name = "John Doe",
             email = "john@example.com",

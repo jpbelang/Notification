@@ -1,5 +1,6 @@
 package ca.notification.users.service.adapter.persistence
 
+import ca.notification.users.service.domain.NewUser
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.port.outbound.CredentialsRepository
@@ -17,7 +18,7 @@ class CognitoCredentialsRepository(
     @Property(name = "cognito.user-pool-id") private val userPoolId: String
 ) : CredentialsRepository {
 
-    override fun save(user: User): TypedUUID<User> {
+    override fun save(user: NewUser): TypedUUID<User> {
         val request = AdminCreateUserRequest.builder()
             .userPoolId(userPoolId)
             .username(user.email)
@@ -26,8 +27,7 @@ class CognitoCredentialsRepository(
                 AttributeType.builder().name("email").value(user.email).build(),
                 AttributeType.builder().name("email_verified").value("true").build(),
                 AttributeType.builder().name("name").value(user.name).build(),
-                AttributeType.builder().name("phone_number").value(user.phoneNumber).build(),
-                AttributeType.builder().name("custom:userId").value(user.id.toString()).build()
+                AttributeType.builder().name("phone_number").value(user.phoneNumber).build()
             )
             .messageAction("SUPPRESS")
             .build()

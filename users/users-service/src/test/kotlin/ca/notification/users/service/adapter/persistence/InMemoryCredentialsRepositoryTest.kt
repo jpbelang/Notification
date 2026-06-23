@@ -11,9 +11,7 @@ class InMemoryCredentialsRepositoryTest : StringSpec({
     val repository = InMemoryCredentialsRepository()
 
     "should save and find credentials" {
-        val userId = TypedUUID.create<User>()
-        val user = User(
-            id = userId,
+        val user = User.createNew(
             name = "John Doe",
             email = "john@example.com",
             phoneNumber = "555-1234",
@@ -21,11 +19,10 @@ class InMemoryCredentialsRepositoryTest : StringSpec({
         )
 
         val result = repository.save(user)
-        result shouldBe userId
 
-        val savedCredentials = repository.findByUserId(userId)
+        val savedCredentials = repository.findByUserId(result)
         savedCredentials shouldNotBe null
-        savedCredentials?.userId shouldBe userId
+        savedCredentials?.userId shouldBe result
         savedCredentials?.email shouldBe "john@example.com"
         savedCredentials?.password shouldBe "secretPassword"
     }
