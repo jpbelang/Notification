@@ -34,6 +34,8 @@ class DynamoUserRepositoryTest : StringSpec({
                 it.tableName() shouldBe tableName
                 it.item()["pk"]?.s() shouldBe "user=${user.email}"
                 it.item()["sk"]?.s() shouldBe "user"
+                it.item()["gsipk"]?.s() shouldBe "user=${user.id}"
+                it.item()["gsisk"]?.s() shouldBe "user"
                 it.item()["id"]?.s() shouldBe user.id.toString()
                 it.item()["name"]?.s() shouldBe user.name
                 it.item()["email"]?.s() shouldBe user.email

@@ -9,6 +9,7 @@ import software.amazon.awscdk.services.apigateway.LambdaRestApi
 import software.amazon.awscdk.services.cognito.*
 import software.amazon.awscdk.services.dynamodb.Attribute
 import software.amazon.awscdk.services.dynamodb.AttributeType
+import software.amazon.awscdk.services.dynamodb.GlobalSecondaryIndexProps
 import software.amazon.awscdk.services.dynamodb.Table
 import software.amazon.awscdk.services.lambda.Code
 import software.amazon.awscdk.services.lambda.Function
@@ -26,6 +27,14 @@ class UsersInfrastructureStack(
             .sortKey(Attribute.builder().name("sk").type(AttributeType.STRING).build())
             .removalPolicy(RemovalPolicy.DESTROY)
             .build()
+
+        usersTable.addGlobalSecondaryIndex(
+            GlobalSecondaryIndexProps.builder()
+                .indexName("gsipk-gsisk-index")
+                .partitionKey(Attribute.builder().name("gsipk").type(AttributeType.STRING).build())
+                .sortKey(Attribute.builder().name("gsisk").type(AttributeType.STRING).build())
+                .build()
+        )
 
         val userPool = UserPool.Builder.create(this, "UserPool")
             .selfSignUpEnabled(true)

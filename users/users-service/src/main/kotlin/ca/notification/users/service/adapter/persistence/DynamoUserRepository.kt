@@ -20,6 +20,8 @@ class DynamoUserRepository(
         val item = mapOf(
             "pk" to AttributeValue.builder().s("user=${user.email}").build(),
             "sk" to AttributeValue.builder().s("user").build(),
+            "gsipk" to AttributeValue.builder().s("user=${user.id}").build(),
+            "gsisk" to AttributeValue.builder().s("user").build(),
             "id" to AttributeValue.builder().s(user.id.toString()).build(),
             "name" to AttributeValue.builder().s(user.name).build(),
             "email" to AttributeValue.builder().s(user.email).build(),
