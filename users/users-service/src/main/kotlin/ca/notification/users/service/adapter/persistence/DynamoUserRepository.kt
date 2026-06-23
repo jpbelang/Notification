@@ -18,7 +18,7 @@ class DynamoUserRepository(
 
     override fun save(user: User) {
         val item = mapOf(
-            "pk" to AttributeValue.builder().s("user=${user.id}").build(),
+            "pk" to AttributeValue.builder().s("id=${user.id}").build(),
             "sk" to AttributeValue.builder().s("user").build(),
             "gsipk" to AttributeValue.builder().s("user=${user.email}").build(),
             "gsisk" to AttributeValue.builder().s("user").build(),
@@ -41,7 +41,7 @@ class DynamoUserRepository(
             .tableName(tableName)
             .key(
                 mapOf(
-                    "pk" to AttributeValue.builder().s("user=$id").build(),
+                    "pk" to AttributeValue.builder().s("id=$id").build(),
                     "sk" to AttributeValue.builder().s("user").build()
                 )
             )
@@ -74,7 +74,7 @@ class DynamoUserRepository(
             .tableName(tableName)
             .key(
                 mapOf(
-                    "pk" to AttributeValue.builder().s("user=${user.id}").build(),
+                    "pk" to AttributeValue.builder().s("id=${user.id}").build(),
                     "sk" to AttributeValue.builder().s("user").build()
                 )
             )

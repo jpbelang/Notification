@@ -33,7 +33,7 @@ class DynamoUserRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.putItem(withArg<PutItemRequest> {
                 it.tableName() shouldBe tableName
-                it.item()["pk"]?.s() shouldBe "user=${user.id}"
+                it.item()["pk"]?.s() shouldBe "id=${user.id}"
                 it.item()["sk"]?.s() shouldBe "user"
                 it.item()["gsipk"]?.s() shouldBe "user=${user.email}"
                 it.item()["gsisk"]?.s() shouldBe "user"
@@ -64,7 +64,7 @@ class DynamoUserRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.getItem(withArg<GetItemRequest> {
                 it.tableName() shouldBe tableName
-                it.key()["pk"]?.s() shouldBe "user=$userId"
+                it.key()["pk"]?.s() shouldBe "id=$userId"
                 it.key()["sk"]?.s() shouldBe "user"
             })
         }
