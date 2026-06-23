@@ -27,6 +27,14 @@ class InMemoryCredentialsRepository : CredentialsRepository {
         return userId
     }
 
+    override fun update(user: User) {
+        if (credentials.values.any { it.email == user.email && it.userId != user.id }) {
+            throw UserExistsException("User with email ${user.email} already exists")
+        }
+        val existing = credentials[user.id] ?: return
+        credentials[user.id] = existing.copy(email = user.email)
+    }
+
     fun findByUserId(userId: TypedUUID<User>): UserCredentials? = credentials[userId]
 }
 

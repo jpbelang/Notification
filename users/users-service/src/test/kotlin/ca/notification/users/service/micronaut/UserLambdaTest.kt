@@ -108,6 +108,71 @@ class UserLambdaTest(
         responseBody shouldContain "finder@example.com"
     }
 
+    "should update user" {
+        val user = User.from(TypedUUID.create(), "Original", "original@example.com", "111")
+        userRepository.save(user)
+
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "PUT"
+            this.path = "/users/${user.id}"
+            this.body = """
+                {
+                    "name": "Updated",
+                    "email": "original@example.com",
+                    "phoneNumber": "222"
+                }
+            """.trimIndent()
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 200
+        response.body shouldContain "Updated"
+        response.body shouldContain "222"
+
+        val updated = userRepository.findById(user.id)
+        updated?.name shouldBe "Updated"
+    }
+
+    "should update user with email change" {
+        val user = User.from(TypedUUID.create(), "Original", "old-email@example.com", "111")
+        userRepository.save(user)
+
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "PUT"
+            this.path = "/users/${user.id}"
+            this.body = """
+                {
+                    "name": "Original",
+                    "email": "new-email@example.com",
+                    "phoneNumber": "111"
+                }
+            """.trimIndent()
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 200
+
+        userRepository.findByEmail("old-email@example.com") shouldBe null
+        userRepository.findByEmail("new-email@example.com")?.id shouldBe user.id
+    }
+
+    "should return 404 when updating non-existent user" {
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "PUT"
+            this.path = "/users/${TypedUUID.create<User>()}"
+            this.body = """
+                {
+                    "name": "Doesnt Matter",
+                    "email": "any@example.com",
+                    "phoneNumber": "000"
+                }
+            """.trimIndent()
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 404
+    }
+
     "should get user by email" {
         val user = User.from(TypedUUID.create(), "EmailFinder", "email@example.com", "888")
         userRepository.save(user)

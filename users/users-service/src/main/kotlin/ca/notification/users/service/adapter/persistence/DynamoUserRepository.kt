@@ -2,7 +2,6 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
-import ca.notification.users.service.domain.UserExistsException
 import ca.notification.users.service.port.outbound.UserRepository
 import io.micronaut.context.annotation.Property
 import io.micronaut.context.annotation.Requires
@@ -19,9 +18,9 @@ class DynamoUserRepository(
 
     override fun save(user: User) {
         val item = mapOf(
-            "pk" to AttributeValue.builder().s("user=${user.email}").build(),
+            "pk" to AttributeValue.builder().s("user=${user.id}").build(),
             "sk" to AttributeValue.builder().s("user").build(),
-            "gsipk" to AttributeValue.builder().s("user=${user.id}").build(),
+            "gsipk" to AttributeValue.builder().s("user=${user.email}").build(),
             "gsisk" to AttributeValue.builder().s("user").build(),
             "id" to AttributeValue.builder().s(user.id.toString()).build(),
             "name" to AttributeValue.builder().s(user.name).build(),
@@ -32,25 +31,34 @@ class DynamoUserRepository(
         val request = PutItemRequest.builder()
             .tableName(tableName)
             .item(item)
-            .conditionExpression("attribute_not_exists(pk) OR id = :id")
-            .expressionAttributeValues(mapOf(":id" to AttributeValue.builder().s(user.id.toString()).build()))
             .build()
 
-        try {
-            dynamoDbClient.putItem(request)
-        } catch (e: ConditionalCheckFailedException) {
-            throw UserExistsException("User with email ${user.email} already exists")
-        }
+        dynamoDbClient.putItem(request)
     }
 
     override fun findById(id: TypedUUID<User>): User? {
+        val request = GetItemRequest.builder()
+            .tableName(tableName)
+            .key(
+                mapOf(
+                    "pk" to AttributeValue.builder().s("user=$id").build(),
+                    "sk" to AttributeValue.builder().s("user").build()
+                )
+            )
+            .build()
+
+        val response = dynamoDbClient.getItem(request)
+        return if (response.hasItem()) response.item().toDomain() else null
+    }
+
+    override fun findByEmail(email: String): User? {
         val request = QueryRequest.builder()
             .tableName(tableName)
             .indexName("gsipk-gsisk-index")
             .keyConditionExpression("gsipk = :pk AND gsisk = :sk")
             .expressionAttributeValues(
                 mapOf(
-                    ":pk" to AttributeValue.builder().s("user=$id").build(),
+                    ":pk" to AttributeValue.builder().s("user=$email").build(),
                     ":sk" to AttributeValue.builder().s("user").build()
                 )
             )
@@ -61,19 +69,17 @@ class DynamoUserRepository(
         return response.items().firstOrNull()?.toDomain()
     }
 
-    override fun findByEmail(email: String): User? {
-        val request = GetItemRequest.builder()
+    override fun delete(user: User) {
+        val request = DeleteItemRequest.builder()
             .tableName(tableName)
             .key(
                 mapOf(
-                    "pk" to AttributeValue.builder().s("user=$email").build(),
+                    "pk" to AttributeValue.builder().s("user=${user.id}").build(),
                     "sk" to AttributeValue.builder().s("user").build()
                 )
             )
             .build()
-
-        val response = dynamoDbClient.getItem(request)
-        return if (response.hasItem()) response.item().toDomain() else null
+        dynamoDbClient.deleteItem(request)
     }
 
     private fun Map<String, AttributeValue>.toDomain(): User {

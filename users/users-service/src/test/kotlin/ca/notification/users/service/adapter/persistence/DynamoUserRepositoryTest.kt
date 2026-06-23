@@ -33,27 +33,15 @@ class DynamoUserRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.putItem(withArg<PutItemRequest> {
                 it.tableName() shouldBe tableName
-                it.item()["pk"]?.s() shouldBe "user=${user.email}"
+                it.item()["pk"]?.s() shouldBe "user=${user.id}"
                 it.item()["sk"]?.s() shouldBe "user"
-                it.item()["gsipk"]?.s() shouldBe "user=${user.id}"
+                it.item()["gsipk"]?.s() shouldBe "user=${user.email}"
                 it.item()["gsisk"]?.s() shouldBe "user"
                 it.item()["id"]?.s() shouldBe user.id.toString()
                 it.item()["name"]?.s() shouldBe user.name
                 it.item()["email"]?.s() shouldBe user.email
                 it.item()["phoneNumber"]?.s() shouldBe user.phoneNumber
-                it.conditionExpression() shouldBe "attribute_not_exists(pk) OR id = :id"
-                it.expressionAttributeValues()[":id"]?.s() shouldBe user.id.toString()
             })
-        }
-    }
-
-    "should throw UserExistsException if conditional check fails in dynamodb" {
-        val user = User.from(TypedUUID.create(), "Duplicate", "dup@example.com", "000")
-
-        every { dynamoDbClient.putItem(any<PutItemRequest>()) } throws ConditionalCheckFailedException.builder().message("Conflict").build()
-
-        shouldThrow<UserExistsException> {
-            repository.save(user)
         }
     }
 
@@ -66,7 +54,7 @@ class DynamoUserRepositoryTest : StringSpec({
             "phoneNumber" to AttributeValue.builder().s("555-1234").build()
         )
 
-        every { dynamoDbClient.query(any<QueryRequest>()) } returns QueryResponse.builder().items(item).build()
+        every { dynamoDbClient.getItem(any<GetItemRequest>()) } returns GetItemResponse.builder().item(item).build()
 
         val foundUser = repository.findById(userId)
 
@@ -74,12 +62,10 @@ class DynamoUserRepositoryTest : StringSpec({
         foundUser?.name shouldBe "John Doe"
 
         verify {
-            dynamoDbClient.query(withArg<QueryRequest> {
+            dynamoDbClient.getItem(withArg<GetItemRequest> {
                 it.tableName() shouldBe tableName
-                it.indexName() shouldBe "gsipk-gsisk-index"
-                it.keyConditionExpression() shouldBe "gsipk = :pk AND gsisk = :sk"
-                it.expressionAttributeValues()[":pk"]?.s() shouldBe "user=$userId"
-                it.expressionAttributeValues()[":sk"]?.s() shouldBe "user"
+                it.key()["pk"]?.s() shouldBe "user=$userId"
+                it.key()["sk"]?.s() shouldBe "user"
             })
         }
     }
@@ -93,17 +79,19 @@ class DynamoUserRepositoryTest : StringSpec({
             "phoneNumber" to AttributeValue.builder().s("555-1234").build()
         )
 
-        every { dynamoDbClient.getItem(any<GetItemRequest>()) } returns GetItemResponse.builder().item(item).build()
+        every { dynamoDbClient.query(any<QueryRequest>()) } returns QueryResponse.builder().items(item).build()
 
         val foundUser = repository.findByEmail("john@example.com")
 
         foundUser?.email shouldBe "john@example.com"
 
         verify {
-            dynamoDbClient.getItem(withArg<GetItemRequest> {
+            dynamoDbClient.query(withArg<QueryRequest> {
                 it.tableName() shouldBe tableName
-                it.key()["pk"]?.s() shouldBe "user=john@example.com"
-                it.key()["sk"]?.s() shouldBe "user"
+                it.indexName() shouldBe "gsipk-gsisk-index"
+                it.keyConditionExpression() shouldBe "gsipk = :pk AND gsisk = :sk"
+                it.expressionAttributeValues()[":pk"]?.s() shouldBe "user=john@example.com"
+                it.expressionAttributeValues()[":sk"]?.s() shouldBe "user"
             })
         }
     }

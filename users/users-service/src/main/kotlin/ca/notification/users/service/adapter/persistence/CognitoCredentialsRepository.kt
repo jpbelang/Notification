@@ -10,6 +10,7 @@ import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 
@@ -38,6 +39,25 @@ class CognitoCredentialsRepository(
             val response = cognitoClient.adminCreateUser(request)
             val sub = response.user().attributes().first { it.name() == "sub" }.value()
             return TypedUUID.fromString(sub)
+        } catch (e: UsernameExistsException) {
+            throw UserExistsException("User with email ${user.email} already exists")
+        }
+    }
+
+    override fun update(user: User) {
+        val request = AdminUpdateUserAttributesRequest.builder()
+            .userPoolId(userPoolId)
+            .username(user.id.toString())
+            .userAttributes(
+                AttributeType.builder().name("email").value(user.email).build(),
+                AttributeType.builder().name("email_verified").value("true").build(),
+                AttributeType.builder().name("name").value(user.name).build(),
+                AttributeType.builder().name("phone_number").value(user.phoneNumber).build()
+            )
+            .build()
+
+        try {
+            cognitoClient.adminUpdateUserAttributes(request)
         } catch (e: UsernameExistsException) {
             throw UserExistsException("User with email ${user.email} already exists")
         }

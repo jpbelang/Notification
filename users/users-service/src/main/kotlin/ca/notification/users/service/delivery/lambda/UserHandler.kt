@@ -3,11 +3,13 @@ package ca.notification.users.service.delivery.lambda
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.port.inbound.CreateUserUseCase
 import ca.notification.users.service.port.inbound.FindUserUseCase
+import ca.notification.users.service.port.inbound.UpdateUserUseCase
 import org.slf4j.LoggerFactory
 
 class UserHandler(
     private val createUserUseCase: CreateUserUseCase,
-    private val findUserUseCase: FindUserUseCase
+    private val findUserUseCase: FindUserUseCase,
+    private val updateUserUseCase: UpdateUserUseCase
 ) {
 
     private val logger = LoggerFactory.getLogger(UserHandler::class.java)
@@ -24,6 +26,24 @@ class UserHandler(
                 request.email,
                 request.phoneNumber,
                 request.password
+            )
+        )
+
+        return UserResponse(
+            id = user.id.toString(),
+            name = user.name,
+            email = user.email,
+            phoneNumber = user.phoneNumber
+        )
+    }
+
+    fun update(id: String, request: UpdateUserRequest): UserResponse {
+        val user = updateUserUseCase.execute(
+            UpdateUserUseCase.Command(
+                id = TypedUUID.fromString(id),
+                name = request.name,
+                email = request.email,
+                phoneNumber = request.phoneNumber
             )
         )
 

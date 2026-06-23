@@ -4,8 +4,10 @@ import io.micronaut.context.annotation.Factory
 import jakarta.inject.Singleton
 import ca.notification.users.service.application.CreateUserService
 import ca.notification.users.service.application.FindUserService
+import ca.notification.users.service.application.UpdateUserService
 import ca.notification.users.service.port.inbound.CreateUserUseCase
 import ca.notification.users.service.port.inbound.FindUserUseCase
+import ca.notification.users.service.port.inbound.UpdateUserUseCase
 import ca.notification.users.service.port.outbound.UserRepository
 import ca.notification.users.service.port.outbound.CredentialsRepository
 import ca.notification.users.service.delivery.lambda.UserHandler
@@ -30,11 +32,20 @@ class ServiceFactory {
     }
 
     @Singleton
+    fun updateUserUseCase(
+        userRepository: UserRepository,
+        credentialsRepository: CredentialsRepository
+    ): UpdateUserUseCase {
+        return UpdateUserService(userRepository, credentialsRepository)
+    }
+
+    @Singleton
     fun userHandler(
         createUserUseCase: CreateUserUseCase,
-        findUserUseCase: FindUserUseCase
+        findUserUseCase: FindUserUseCase,
+        updateUserUseCase: UpdateUserUseCase
     ): UserHandler {
-        return UserHandler(createUserUseCase, findUserUseCase)
+        return UserHandler(createUserUseCase, findUserUseCase, updateUserUseCase)
     }
 
     @Singleton

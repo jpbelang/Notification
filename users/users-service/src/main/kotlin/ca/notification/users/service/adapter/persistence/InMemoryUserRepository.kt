@@ -29,6 +29,10 @@ class InMemoryUserRepository : UserRepository {
 
     override fun findByEmail(email: String): User? = users.values.find { it.email == email }?.toDomain()
 
+    override fun delete(user: User) {
+        users.remove(user.id)
+    }
+
     private fun PersistentUser.toDomain() = User.from(id, name, email, phoneNumber)
 }
 

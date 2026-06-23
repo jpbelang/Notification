@@ -1,9 +1,8 @@
 package ca.notification.users.service.micronaut
 
-import ca.notification.users.service.delivery.lambda.CreateUserRequest
-import ca.notification.users.service.delivery.lambda.UserResponse
-import ca.notification.users.service.delivery.lambda.UserHandler
+import ca.notification.users.service.delivery.lambda.*
 import ca.notification.users.service.domain.UserExistsException
+import ca.notification.users.service.domain.UserNotFoundException
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -21,6 +20,11 @@ class UserDispatcher(private val userHandler: UserHandler) {
         return userHandler.create(request)
     }
 
+    @Put("/{id}")
+    fun update(id: String, @Body request: UpdateUserRequest): UserResponse {
+        return userHandler.update(id, request)
+    }
+
     @Get("/{id}")
     fun getById(id: String): UserResponse {
         return userHandler.getById(id) ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "User not found")
@@ -34,5 +38,10 @@ class UserDispatcher(private val userHandler: UserHandler) {
     @Error(exception = UserExistsException::class)
     fun handleUserExists(request: HttpRequest<*>, exception: UserExistsException): HttpResponse<String> {
         return HttpResponse.status<String>(HttpStatus.CONFLICT).body(exception.message)
+    }
+
+    @Error(exception = UserNotFoundException::class)
+    fun handleUserNotFound(request: HttpRequest<*>, exception: UserNotFoundException): HttpResponse<String> {
+        return HttpResponse.status<String>(HttpStatus.NOT_FOUND).body(exception.message)
     }
 }

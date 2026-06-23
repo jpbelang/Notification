@@ -6,4 +6,5 @@ import ca.notification.users.service.domain.User
 
 interface CredentialsRepository {
     fun save(user: NewUser): TypedUUID<User>
+    fun update(user: User)
 }

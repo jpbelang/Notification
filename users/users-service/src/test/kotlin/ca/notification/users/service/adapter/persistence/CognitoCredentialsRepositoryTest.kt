@@ -12,6 +12,8 @@ import io.mockk.verify
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesResponse
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserType
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
@@ -64,6 +66,38 @@ class CognitoCredentialsRepositoryTest : StringSpec({
 
         shouldThrow<UserExistsException> {
             repository.save(user)
+        }
+    }
+
+    "should update credentials in cognito" {
+        val userId = TypedUUID.create<User>()
+        val user = User.from(userId, "John Updated", "updated@example.com", "555-4321")
+
+        every { cognitoClient.adminUpdateUserAttributes(any<AdminUpdateUserAttributesRequest>()) } returns AdminUpdateUserAttributesResponse.builder().build()
+
+        repository.update(user)
+
+        verify {
+            cognitoClient.adminUpdateUserAttributes(withArg<AdminUpdateUserAttributesRequest> {
+                it.userPoolId() shouldBe userPoolId
+                it.username() shouldBe userId.toString()
+                val attributes = it.userAttributes().associate { attr -> attr.name() to attr.value() }
+                attributes["email"] shouldBe user.email
+                attributes["email_verified"] shouldBe "true"
+                attributes["name"] shouldBe user.name
+                attributes["phone_number"] shouldBe user.phoneNumber
+            })
+        }
+    }
+
+    "should throw UserExistsException if update fails due to duplicate email in cognito" {
+        val userId = TypedUUID.create<User>()
+        val user = User.from(userId, "John Updated", "duplicate@example.com", "555-4321")
+
+        every { cognitoClient.adminUpdateUserAttributes(any<AdminUpdateUserAttributesRequest>()) } throws UsernameExistsException.builder().message("User already exists").build()
+
+        shouldThrow<UserExistsException> {
+            repository.update(user)
         }
     }
 })
