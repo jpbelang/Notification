@@ -32,6 +32,8 @@ class DynamoUserRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.putItem(withArg<PutItemRequest> {
                 it.tableName() shouldBe tableName
+                it.item()["pk"]?.s() shouldBe "user=${user.email}"
+                it.item()["sk"]?.s() shouldBe "user"
                 it.item()["id"]?.s() shouldBe user.id.toString()
                 it.item()["name"]?.s() shouldBe user.name
                 it.item()["email"]?.s() shouldBe user.email

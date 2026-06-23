@@ -22,7 +22,8 @@ class UsersInfrastructureStack(
 ) : Stack(scope, id, props) {
     init {
         val usersTable = Table.Builder.create(this, "UsersTable")
-            .partitionKey(Attribute.builder().name("id").type(AttributeType.STRING).build())
+            .partitionKey(Attribute.builder().name("pk").type(AttributeType.STRING).build())
+            .sortKey(Attribute.builder().name("sk").type(AttributeType.STRING).build())
             .removalPolicy(RemovalPolicy.DESTROY)
             .build()
 
