@@ -5,6 +5,7 @@ import ca.notification.users.service.domain.User
 import ca.notification.users.service.port.outbound.UserRepository
 import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException
 import java.util.concurrent.ConcurrentHashMap
 
 @Singleton
@@ -13,6 +14,9 @@ class InMemoryUserRepository : UserRepository {
     private val users = ConcurrentHashMap<TypedUUID<User>, PersistentUser>()
 
     override fun save(user: User) {
+        if (users.values.any { it.email == user.email && it.id != user.id }) {
+            throw ConditionalCheckFailedException.builder().message("User with this email already exists").build()
+        }
         users[user.id] = PersistentUser(
             id = user.id,
             name = user.name,

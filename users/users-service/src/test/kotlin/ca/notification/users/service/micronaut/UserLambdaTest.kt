@@ -73,6 +73,25 @@ class UserLambdaTest(
         savedCredentials?.password shouldBe "secret"
     }
 
+    "should return error if email already exists" {
+        val body = mapOf(
+            "name" to "Duplicate",
+            "email" to "duplicate@example.com",
+            "phoneNumber" to "000",
+            "password" to "pass"
+        )
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "POST"
+            this.path = "/users"
+            this.body = jsonMapper.writeValueAsString(body)
+        }
+
+        handler.handleRequest(request, null).statusCode shouldBe 201
+        
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 500
+    }
+
     "should return 404 for unknown path" {
         val request = APIGatewayProxyRequestEvent().apply {
             this.httpMethod = "GET"

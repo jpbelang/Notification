@@ -2,9 +2,11 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException
 
 class InMemoryUserRepositoryTest : StringSpec({
 
@@ -45,5 +47,16 @@ class InMemoryUserRepositoryTest : StringSpec({
         val savedUser = repository.findById(userId)
         savedUser?.name shouldBe "User Two"
         savedUser?.email shouldBe "two@example.com"
+    }
+
+    "should throw exception if email already exists for different user" {
+        val user1 = User.from(TypedUUID.create(), "User 1", "duplicate@example.com", "111")
+        val user2 = User.from(TypedUUID.create(), "User 2", "duplicate@example.com", "222")
+
+        repository.save(user1)
+
+        shouldThrow<ConditionalCheckFailedException> {
+            repository.save(user2)
+        }
     }
 })

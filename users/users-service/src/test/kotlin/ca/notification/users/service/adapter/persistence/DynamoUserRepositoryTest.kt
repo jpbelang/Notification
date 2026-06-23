@@ -40,6 +40,8 @@ class DynamoUserRepositoryTest : StringSpec({
                 it.item()["name"]?.s() shouldBe user.name
                 it.item()["email"]?.s() shouldBe user.email
                 it.item()["phoneNumber"]?.s() shouldBe user.phoneNumber
+                it.conditionExpression() shouldBe "attribute_not_exists(pk) OR id = :id"
+                it.expressionAttributeValues()[":id"]?.s() shouldBe user.id.toString()
             })
         }
     }

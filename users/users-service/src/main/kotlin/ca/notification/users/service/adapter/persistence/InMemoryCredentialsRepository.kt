@@ -6,6 +6,7 @@ import ca.notification.users.service.domain.User
 import ca.notification.users.service.port.outbound.CredentialsRepository
 import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 import java.util.concurrent.ConcurrentHashMap
 
 @Singleton
@@ -14,6 +15,9 @@ class InMemoryCredentialsRepository : CredentialsRepository {
     private val credentials = ConcurrentHashMap<TypedUUID<User>, UserCredentials>()
 
     override fun save(user: NewUser): TypedUUID<User> {
+        if (credentials.values.any { it.email == user.email }) {
+            throw UsernameExistsException.builder().message("User already exists").build()
+        }
         val userId = TypedUUID.create<User>()
         credentials[userId] = UserCredentials(
             userId = userId,

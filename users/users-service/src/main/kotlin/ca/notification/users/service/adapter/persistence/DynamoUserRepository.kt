@@ -31,6 +31,8 @@ class DynamoUserRepository(
         val request = PutItemRequest.builder()
             .tableName(tableName)
             .item(item)
+            .conditionExpression("attribute_not_exists(pk) OR id = :id")
+            .expressionAttributeValues(mapOf(":id" to AttributeValue.builder().s(user.id.toString()).build()))
             .build()
 
         dynamoDbClient.putItem(request)
