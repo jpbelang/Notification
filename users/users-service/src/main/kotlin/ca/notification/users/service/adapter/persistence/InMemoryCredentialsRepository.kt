@@ -12,12 +12,13 @@ import java.util.concurrent.ConcurrentHashMap
 class InMemoryCredentialsRepository : CredentialsRepository {
     private val credentials = ConcurrentHashMap<TypedUUID<User>, UserCredentials>()
 
-    override fun save(user: User) {
+    override fun save(user: User): TypedUUID<User> {
         credentials[user.id] = UserCredentials(
             userId = user.id,
             email = user.email,
             password = user.password
         )
+        return user.id
     }
 
     fun findByUserId(userId: TypedUUID<User>): UserCredentials? = credentials[userId]

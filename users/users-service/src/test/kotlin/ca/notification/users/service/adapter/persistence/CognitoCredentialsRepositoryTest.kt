@@ -10,6 +10,9 @@ import io.mockk.verify
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UserType
+import java.util.*
 
 class CognitoCredentialsRepositoryTest : StringSpec({
 
@@ -17,7 +20,7 @@ class CognitoCredentialsRepositoryTest : StringSpec({
     val userPoolId = "us-east-1_abc123"
     val repository = CognitoCredentialsRepository(cognitoClient, userPoolId)
 
-    "should save credentials to cognito" {
+    "should save credentials to cognito and return sub as user id" {
         val user = User(
             id = TypedUUID.create(),
             name = "John Doe",
@@ -25,10 +28,17 @@ class CognitoCredentialsRepositoryTest : StringSpec({
             phoneNumber = "555-1234",
             password = "secretPassword123"
         )
+        val sub = UUID.randomUUID().toString()
 
-        every { cognitoClient.adminCreateUser(any<AdminCreateUserRequest>()) } returns AdminCreateUserResponse.builder().build()
+        every { cognitoClient.adminCreateUser(any<AdminCreateUserRequest>()) } returns AdminCreateUserResponse.builder()
+            .user(UserType.builder()
+                .attributes(AttributeType.builder().name("sub").value(sub).build())
+                .build())
+            .build()
 
-        repository.save(user)
+        val result = repository.save(user)
+
+        result.asString() shouldBe sub
 
         verify {
             cognitoClient.adminCreateUser(withArg<AdminCreateUserRequest> {

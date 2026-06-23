@@ -18,8 +18,9 @@ class CreateUserService(
             phoneNumber = command.phoneNumber,
             password = command.password
         )
-        userRepository.save(user)
-        credentialsRepository.save(user)
-        return user
+        val actualId = credentialsRepository.save(user)
+        val finalUser = user.copy(id = actualId)
+        userRepository.save(finalUser)
+        return finalUser
     }
 }

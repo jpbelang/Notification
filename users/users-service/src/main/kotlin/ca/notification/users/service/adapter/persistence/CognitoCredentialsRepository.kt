@@ -1,5 +1,6 @@
 package ca.notification.users.service.adapter.persistence
 
+import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.port.outbound.CredentialsRepository
 import io.micronaut.context.annotation.Property
@@ -16,7 +17,7 @@ class CognitoCredentialsRepository(
     @Property(name = "cognito.user-pool-id") private val userPoolId: String
 ) : CredentialsRepository {
 
-    override fun save(user: User) {
+    override fun save(user: User): TypedUUID<User> {
         val request = AdminCreateUserRequest.builder()
             .userPoolId(userPoolId)
             .username(user.email)
@@ -31,6 +32,8 @@ class CognitoCredentialsRepository(
             .messageAction("SUPPRESS")
             .build()
 
-        cognitoClient.adminCreateUser(request)
+        val response = cognitoClient.adminCreateUser(request)
+        val sub = response.user().attributes().first { it.name() == "sub" }.value()
+        return TypedUUID.fromString(sub)
     }
 }

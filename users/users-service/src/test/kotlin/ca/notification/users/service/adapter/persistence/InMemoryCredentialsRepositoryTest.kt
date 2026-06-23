@@ -20,7 +20,8 @@ class InMemoryCredentialsRepositoryTest : StringSpec({
             password = "secretPassword"
         )
 
-        repository.save(user)
+        val result = repository.save(user)
+        result shouldBe userId
 
         val savedCredentials = repository.findByUserId(userId)
         savedCredentials shouldNotBe null
