@@ -6,7 +6,7 @@ Content-Type: application/json
   "name": "John Doe",
   "email": "john@example.com",
   "phoneNumber": "+15145559614",
-  "password": "<Secret!>"
+  "password": "Big<Secret!>33"
 }
 
 ### Create Duplicate User
@@ -27,19 +27,19 @@ Content-Type: application/json
 %}
 
 ### Get User by ID
-GET {{host}}/users/{{user_id}}
+GET {{host}}/users/84688428-9031-70c4-0a3c-082a96d481f0
 
 ### Get User by Email
 GET {{host}}/users/email/john@example.com
 
 ### Update User
-PUT {{host}}/users/{{user_id}}
+PUT {{host}}/users/84688428-9031-70c4-0a3c-082a96d481f0
 Content-Type: application/json
 
 {
   "name": "John Updated",
-  "email": "john@example.com",
-  "phoneNumber": "555-9999"
+  "email": "john2@example.com",
+  "phoneNumber": "+15145559614"
 }
 
 ### Get User Not Found
@@ -47,6 +47,9 @@ GET {{host}}/users/non-existent-id
 
 ### Unknown Path
 GET {{host}}/unknown
+
+### Delete User
+DELETE {{host}}/users/84688428-9031-70c4-0a3c-082a96d481f0
 
 ### Method Not Allowed
 GET {{host}}/users

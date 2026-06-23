@@ -2,6 +2,7 @@ package ca.notification.users.service.delivery.lambda
 
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.port.inbound.CreateUserUseCase
+import ca.notification.users.service.port.inbound.DeleteUserUseCase
 import ca.notification.users.service.port.inbound.FindUserUseCase
 import ca.notification.users.service.port.inbound.UpdateUserUseCase
 import org.slf4j.LoggerFactory
@@ -9,7 +10,8 @@ import org.slf4j.LoggerFactory
 class UserHandler(
     private val createUserUseCase: CreateUserUseCase,
     private val findUserUseCase: FindUserUseCase,
-    private val updateUserUseCase: UpdateUserUseCase
+    private val updateUserUseCase: UpdateUserUseCase,
+    private val deleteUserUseCase: DeleteUserUseCase
 ) {
 
     private val logger = LoggerFactory.getLogger(UserHandler::class.java)
@@ -77,5 +79,9 @@ class UserHandler(
                 phoneNumber = it.phoneNumber
             )
         }
+    }
+
+    fun delete(id: String) {
+        deleteUserUseCase.execute(TypedUUID.fromString(id))
     }
 }

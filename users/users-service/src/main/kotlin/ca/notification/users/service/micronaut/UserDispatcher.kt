@@ -35,6 +35,12 @@ class UserDispatcher(private val userHandler: UserHandler) {
         return userHandler.getByEmail(email) ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "User not found")
     }
 
+    @Delete("/{id}")
+    @Status(HttpStatus.NO_CONTENT)
+    fun delete(id: String) {
+        userHandler.delete(id)
+    }
+
     @Error(exception = UserExistsException::class)
     fun handleUserExists(request: HttpRequest<*>, exception: UserExistsException): HttpResponse<String> {
         return HttpResponse.status<String>(HttpStatus.CONFLICT).body(exception.message)

@@ -224,4 +224,29 @@ class UserLambdaTest(
         response.statusCode shouldBe 405
     }
 
+    "should delete user" {
+        val user = User.from(TypedUUID.create(), "Delete Me", "delete@example.com", "000")
+        userRepository.save(user)
+
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "DELETE"
+            this.path = "/users/${user.id}"
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 204
+
+        userRepository.findById(user.id) shouldBe null
+    }
+
+    "should return 404 when deleting non-existent user" {
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "DELETE"
+            this.path = "/users/${TypedUUID.create<User>()}"
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 404
+    }
+
 })

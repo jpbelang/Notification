@@ -35,6 +35,10 @@ class InMemoryCredentialsRepository : CredentialsRepository {
         credentials[user.id] = existing.copy(email = user.email)
     }
 
+    override fun delete(id: TypedUUID<User>) {
+        credentials.remove(id)
+    }
+
     fun findByUserId(userId: TypedUUID<User>): UserCredentials? = credentials[userId]
 }
 

@@ -10,6 +10,7 @@ import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminDeleteUserRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
@@ -61,5 +62,14 @@ class CognitoCredentialsRepository(
         } catch (e: UsernameExistsException) {
             throw UserExistsException("User with email ${user.email} already exists")
         }
+    }
+
+    override fun delete(id: TypedUUID<User>) {
+        val request = AdminDeleteUserRequest.builder()
+            .userPoolId(userPoolId)
+            .username(id.toString())
+            .build()
+
+        cognitoClient.adminDeleteUser(request)
     }
 }
