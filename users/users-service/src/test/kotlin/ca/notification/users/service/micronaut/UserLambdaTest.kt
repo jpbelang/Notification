@@ -92,6 +92,53 @@ class UserLambdaTest(
         response.statusCode shouldBe 409
     }
 
+    "should get user by id" {
+        val user = User.from(TypedUUID.create(), "Finder", "finder@example.com", "999")
+        userRepository.save(user)
+
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "GET"
+            this.path = "/users/${user.id}"
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 200
+        val responseBody = response.body ?: ""
+        responseBody shouldContain "Finder"
+        responseBody shouldContain "finder@example.com"
+    }
+
+    "should get user by email" {
+        val user = User.from(TypedUUID.create(), "EmailFinder", "email@example.com", "888")
+        userRepository.save(user)
+
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "GET"
+            this.path = "/users/email/${user.email}"
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 200
+        val responseBody = response.body ?: ""
+        responseBody shouldContain "EmailFinder"
+        responseBody shouldContain "email@example.com"
+    }
+
+    "should return 404 if user not found" {
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "GET"
+            this.path = "/users/${TypedUUID.create<User>()}"
+        }
+
+        handler.handleRequest(request, null).statusCode shouldBe 404
+
+        val emailRequest = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "GET"
+            this.path = "/users/email/notfound@example.com"
+        }
+        handler.handleRequest(emailRequest, null).statusCode shouldBe 404
+    }
+
     "should return 404 for unknown path" {
         val request = APIGatewayProxyRequestEvent().apply {
             this.httpMethod = "GET"

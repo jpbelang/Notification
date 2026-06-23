@@ -1,5 +1,6 @@
 package ca.notification.users.service.adapter.persistence
 
+import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.domain.UserExistsException
 import ca.notification.users.service.port.outbound.UserRepository
@@ -7,9 +8,7 @@ import io.micronaut.context.annotation.Property
 import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue
-import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
+import software.amazon.awssdk.services.dynamodb.model.*
 
 @Singleton
 @Requires(property = "micronaut.environment", value = "lambda")
@@ -42,5 +41,47 @@ class DynamoUserRepository(
         } catch (e: ConditionalCheckFailedException) {
             throw UserExistsException("User with email ${user.email} already exists")
         }
+    }
+
+    override fun findById(id: TypedUUID<User>): User? {
+        val request = QueryRequest.builder()
+            .tableName(tableName)
+            .indexName("gsipk-gsisk-index")
+            .keyConditionExpression("gsipk = :pk AND gsisk = :sk")
+            .expressionAttributeValues(
+                mapOf(
+                    ":pk" to AttributeValue.builder().s("user=$id").build(),
+                    ":sk" to AttributeValue.builder().s("user").build()
+                )
+            )
+            .limit(1)
+            .build()
+
+        val response = dynamoDbClient.query(request)
+        return response.items().firstOrNull()?.toDomain()
+    }
+
+    override fun findByEmail(email: String): User? {
+        val request = GetItemRequest.builder()
+            .tableName(tableName)
+            .key(
+                mapOf(
+                    "pk" to AttributeValue.builder().s("user=$email").build(),
+                    "sk" to AttributeValue.builder().s("user").build()
+                )
+            )
+            .build()
+
+        val response = dynamoDbClient.getItem(request)
+        return if (response.hasItem()) response.item().toDomain() else null
+    }
+
+    private fun Map<String, AttributeValue>.toDomain(): User {
+        return User.from(
+            id = TypedUUID.fromString(this["id"]!!.s()),
+            name = this["name"]!!.s(),
+            email = this["email"]!!.s(),
+            phoneNumber = this["phoneNumber"]!!.s()
+        )
     }
 }

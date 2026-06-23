@@ -1,15 +1,18 @@
 package ca.notification.users.service.delivery.lambda
 
+import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.port.inbound.CreateUserUseCase
+import ca.notification.users.service.port.inbound.FindUserUseCase
 import org.slf4j.LoggerFactory
 
 class UserHandler(
-    private val createUserUseCase: CreateUserUseCase
+    private val createUserUseCase: CreateUserUseCase,
+    private val findUserUseCase: FindUserUseCase
 ) {
 
     private val logger = LoggerFactory.getLogger(UserHandler::class.java)
 
-    fun create(request: CreateUserRequest): CreateUserResponse {
+    fun create(request: CreateUserRequest): UserResponse {
 
         System.getenv().forEach { (key, value) ->
             logger.info("$key = $value")
@@ -24,11 +27,35 @@ class UserHandler(
             )
         )
 
-        return CreateUserResponse(
+        return UserResponse(
             id = user.id.toString(),
             name = user.name,
             email = user.email,
             phoneNumber = user.phoneNumber
         )
+    }
+
+    fun getById(id: String): UserResponse? {
+        val user = findUserUseCase.findById(TypedUUID.fromString(id))
+        return user?.let {
+            UserResponse(
+                id = it.id.toString(),
+                name = it.name,
+                email = it.email,
+                phoneNumber = it.phoneNumber
+            )
+        }
+    }
+
+    fun getByEmail(email: String): UserResponse? {
+        val user = findUserUseCase.findByEmail(email)
+        return user?.let {
+            UserResponse(
+                id = it.id.toString(),
+                name = it.name,
+                email = it.email,
+                phoneNumber = it.phoneNumber
+            )
+        }
     }
 }

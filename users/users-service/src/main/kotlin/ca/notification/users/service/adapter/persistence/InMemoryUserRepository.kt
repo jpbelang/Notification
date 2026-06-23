@@ -25,7 +25,11 @@ class InMemoryUserRepository : UserRepository {
         )
     }
 
-    fun findById(id: TypedUUID<User>): PersistentUser? = users[id]
+    override fun findById(id: TypedUUID<User>): User? = users[id]?.toDomain()
+
+    override fun findByEmail(email: String): User? = users.values.find { it.email == email }?.toDomain()
+
+    private fun PersistentUser.toDomain() = User.from(id, name, email, phoneNumber)
 }
 
 data class PersistentUser(

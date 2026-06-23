@@ -10,9 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
-import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse
+import software.amazon.awssdk.services.dynamodb.model.*
 
 class DynamoUserRepositoryTest : StringSpec({
 
@@ -56,6 +54,57 @@ class DynamoUserRepositoryTest : StringSpec({
 
         shouldThrow<UserExistsException> {
             repository.save(user)
+        }
+    }
+
+    "should find user by id" {
+        val userId = TypedUUID.create<User>()
+        val item = mapOf(
+            "id" to AttributeValue.builder().s(userId.toString()).build(),
+            "name" to AttributeValue.builder().s("John Doe").build(),
+            "email" to AttributeValue.builder().s("john@example.com").build(),
+            "phoneNumber" to AttributeValue.builder().s("555-1234").build()
+        )
+
+        every { dynamoDbClient.query(any<QueryRequest>()) } returns QueryResponse.builder().items(item).build()
+
+        val foundUser = repository.findById(userId)
+
+        foundUser?.id shouldBe userId
+        foundUser?.name shouldBe "John Doe"
+
+        verify {
+            dynamoDbClient.query(withArg<QueryRequest> {
+                it.tableName() shouldBe tableName
+                it.indexName() shouldBe "gsipk-gsisk-index"
+                it.keyConditionExpression() shouldBe "gsipk = :pk AND gsisk = :sk"
+                it.expressionAttributeValues()[":pk"]?.s() shouldBe "user=$userId"
+                it.expressionAttributeValues()[":sk"]?.s() shouldBe "user"
+            })
+        }
+    }
+
+    "should find user by email" {
+        val userId = TypedUUID.create<User>()
+        val item = mapOf(
+            "id" to AttributeValue.builder().s(userId.toString()).build(),
+            "name" to AttributeValue.builder().s("John Doe").build(),
+            "email" to AttributeValue.builder().s("john@example.com").build(),
+            "phoneNumber" to AttributeValue.builder().s("555-1234").build()
+        )
+
+        every { dynamoDbClient.getItem(any<GetItemRequest>()) } returns GetItemResponse.builder().item(item).build()
+
+        val foundUser = repository.findByEmail("john@example.com")
+
+        foundUser?.email shouldBe "john@example.com"
+
+        verify {
+            dynamoDbClient.getItem(withArg<GetItemRequest> {
+                it.tableName() shouldBe tableName
+                it.key()["pk"]?.s() shouldBe "user=john@example.com"
+                it.key()["sk"]?.s() shouldBe "user"
+            })
         }
     }
 })

@@ -13,7 +13,7 @@ data class CreateUserRequest(
     val password: String
 ) : UserDto
 
-data class CreateUserResponse(
+data class UserResponse(
     val id: String,
     override val name: String,
     override val email: String,

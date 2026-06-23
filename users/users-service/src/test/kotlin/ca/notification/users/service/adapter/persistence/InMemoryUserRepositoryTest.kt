@@ -49,6 +49,27 @@ class InMemoryUserRepositoryTest : StringSpec({
         savedUser?.email shouldBe "two@example.com"
     }
 
+    "should find user by id" {
+        val user = User.from(TypedUUID.create(), "User ID", "id@example.com", "123")
+        repository.save(user)
+
+        val foundUser = repository.findById(user.id)
+        foundUser shouldBe user
+    }
+
+    "should find user by email" {
+        val user = User.from(TypedUUID.create(), "User Email", "email-find@example.com", "123")
+        repository.save(user)
+
+        val foundUser = repository.findByEmail("email-find@example.com")
+        foundUser shouldBe user
+    }
+
+    "should return null if user not found" {
+        repository.findById(TypedUUID.create()) shouldBe null
+        repository.findByEmail("nonexistent@example.com") shouldBe null
+    }
+
     "should throw exception if email already exists for different user" {
         val user1 = User.from(TypedUUID.create(), "User 1", "duplicate@example.com", "111")
         val user2 = User.from(TypedUUID.create(), "User 2", "duplicate@example.com", "222")
