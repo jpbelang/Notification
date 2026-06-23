@@ -9,6 +9,23 @@ Content-Type: application/json
   "password": "<Secret!>"
 }
 
+### Create Duplicate User
+POST {{host}}/users
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phoneNumber": "+15145559614",
+  "password": "<Secret!>"
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 409, "Response status is not 409");
+    });
+%}
+
 ### Get User (Not Found / Not Implemented)
 GET {{host}}/users/123
 

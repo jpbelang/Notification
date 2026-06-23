@@ -2,10 +2,10 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
+import ca.notification.users.service.domain.UserExistsException
 import ca.notification.users.service.port.outbound.UserRepository
 import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
-import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException
 import java.util.concurrent.ConcurrentHashMap
 
 @Singleton
@@ -15,7 +15,7 @@ class InMemoryUserRepository : UserRepository {
 
     override fun save(user: User) {
         if (users.values.any { it.email == user.email && it.id != user.id }) {
-            throw ConditionalCheckFailedException.builder().message("User with this email already exists").build()
+            throw UserExistsException("User with email ${user.email} already exists")
         }
         users[user.id] = PersistentUser(
             id = user.id,

@@ -3,6 +3,7 @@ package ca.notification.users.service.adapter.persistence
 import ca.notification.users.service.domain.NewUser
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
+import ca.notification.users.service.domain.UserExistsException
 import ca.notification.users.service.port.outbound.CredentialsRepository
 import io.micronaut.context.annotation.Property
 import io.micronaut.context.annotation.Requires
@@ -10,6 +11,7 @@ import jakarta.inject.Singleton
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 
 @Singleton
 @Requires(property = "micronaut.environment", value = "lambda")
@@ -32,8 +34,12 @@ class CognitoCredentialsRepository(
             .messageAction("SUPPRESS")
             .build()
 
-        val response = cognitoClient.adminCreateUser(request)
-        val sub = response.user().attributes().first { it.name() == "sub" }.value()
-        return TypedUUID.fromString(sub)
+        try {
+            val response = cognitoClient.adminCreateUser(request)
+            val sub = response.user().attributes().first { it.name() == "sub" }.value()
+            return TypedUUID.fromString(sub)
+        } catch (e: UsernameExistsException) {
+            throw UserExistsException("User with email ${user.email} already exists")
+        }
     }
 }

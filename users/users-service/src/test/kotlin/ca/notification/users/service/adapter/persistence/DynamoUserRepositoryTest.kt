@@ -2,12 +2,15 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
+import ca.notification.users.service.domain.UserExistsException
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse
 
@@ -43,6 +46,16 @@ class DynamoUserRepositoryTest : StringSpec({
                 it.conditionExpression() shouldBe "attribute_not_exists(pk) OR id = :id"
                 it.expressionAttributeValues()[":id"]?.s() shouldBe user.id.toString()
             })
+        }
+    }
+
+    "should throw UserExistsException if conditional check fails in dynamodb" {
+        val user = User.from(TypedUUID.create(), "Duplicate", "dup@example.com", "000")
+
+        every { dynamoDbClient.putItem(any<PutItemRequest>()) } throws ConditionalCheckFailedException.builder().message("Conflict").build()
+
+        shouldThrow<UserExistsException> {
+            repository.save(user)
         }
     }
 })

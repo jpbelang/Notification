@@ -2,6 +2,8 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
+import ca.notification.users.service.domain.UserExistsException
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -12,6 +14,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreate
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserType
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 import java.util.*
 
 class CognitoCredentialsRepositoryTest : StringSpec({
@@ -51,6 +54,16 @@ class CognitoCredentialsRepositoryTest : StringSpec({
                 attributes["phone_number"] shouldBe user.phoneNumber
                 it.messageActionAsString() shouldBe "SUPPRESS"
             })
+        }
+    }
+
+    "should throw UserExistsException if username already exists in cognito" {
+        val user = User.createNew("Duplicate", "dup@example.com", "000", "pass")
+
+        every { cognitoClient.adminCreateUser(any<AdminCreateUserRequest>()) } throws UsernameExistsException.builder().message("User already exists").build()
+
+        shouldThrow<UserExistsException> {
+            repository.save(user)
         }
     }
 })

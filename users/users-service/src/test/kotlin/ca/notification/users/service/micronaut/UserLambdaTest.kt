@@ -89,7 +89,7 @@ class UserLambdaTest(
         handler.handleRequest(request, null).statusCode shouldBe 201
         
         val response = handler.handleRequest(request, null)
-        response.statusCode shouldBe 500
+        response.statusCode shouldBe 409
     }
 
     "should return 404 for unknown path" {

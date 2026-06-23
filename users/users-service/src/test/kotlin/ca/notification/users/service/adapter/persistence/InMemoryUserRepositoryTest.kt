@@ -2,11 +2,11 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
+import ca.notification.users.service.domain.UserExistsException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException
 
 class InMemoryUserRepositoryTest : StringSpec({
 
@@ -55,7 +55,7 @@ class InMemoryUserRepositoryTest : StringSpec({
 
         repository.save(user1)
 
-        shouldThrow<ConditionalCheckFailedException> {
+        shouldThrow<UserExistsException> {
             repository.save(user2)
         }
     }

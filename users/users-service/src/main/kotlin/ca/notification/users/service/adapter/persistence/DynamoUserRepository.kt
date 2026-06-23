@@ -1,12 +1,14 @@
 package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.User
+import ca.notification.users.service.domain.UserExistsException
 import ca.notification.users.service.port.outbound.UserRepository
 import io.micronaut.context.annotation.Property
 import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 
 @Singleton
@@ -35,6 +37,10 @@ class DynamoUserRepository(
             .expressionAttributeValues(mapOf(":id" to AttributeValue.builder().s(user.id.toString()).build()))
             .build()
 
-        dynamoDbClient.putItem(request)
+        try {
+            dynamoDbClient.putItem(request)
+        } catch (e: ConditionalCheckFailedException) {
+            throw UserExistsException("User with email ${user.email} already exists")
+        }
     }
 }

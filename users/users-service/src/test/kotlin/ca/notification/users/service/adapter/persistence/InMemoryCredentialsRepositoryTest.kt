@@ -2,11 +2,11 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
+import ca.notification.users.service.domain.UserExistsException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 
 class InMemoryCredentialsRepositoryTest : StringSpec({
 
@@ -35,7 +35,7 @@ class InMemoryCredentialsRepositoryTest : StringSpec({
 
         repository.save(user1)
 
-        shouldThrow<UsernameExistsException> {
+        shouldThrow<UserExistsException> {
             repository.save(user2)
         }
     }

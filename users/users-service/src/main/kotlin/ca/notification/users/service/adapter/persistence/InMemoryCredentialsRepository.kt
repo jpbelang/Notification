@@ -3,10 +3,10 @@ package ca.notification.users.service.adapter.persistence
 import ca.notification.users.service.domain.NewUser
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
+import ca.notification.users.service.domain.UserExistsException
 import ca.notification.users.service.port.outbound.CredentialsRepository
 import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
-import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 import java.util.concurrent.ConcurrentHashMap
 
 @Singleton
@@ -16,7 +16,7 @@ class InMemoryCredentialsRepository : CredentialsRepository {
 
     override fun save(user: NewUser): TypedUUID<User> {
         if (credentials.values.any { it.email == user.email }) {
-            throw UsernameExistsException.builder().message("User already exists").build()
+            throw UserExistsException("User with email ${user.email} already exists")
         }
         val userId = TypedUUID.create<User>()
         credentials[userId] = UserCredentials(
