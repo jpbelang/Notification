@@ -22,8 +22,7 @@ class DynamoUserRepositoryTest : StringSpec({
             id = TypedUUID.create(),
             name = "John Doe",
             email = "john@example.com",
-            phoneNumber = "555-1234",
-            password = "password123"
+            phoneNumber = "555-1234"
         )
 
         every { dynamoDbClient.putItem(any<PutItemRequest>()) } returns PutItemResponse.builder().build()

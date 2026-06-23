@@ -24,15 +24,13 @@ class UserTest : StringSpec({
         val name = "Jane Doe"
         val email = "jane@example.com"
         val phoneNumber = "555-5678"
-        val password = "anotherPassword456"
 
-        val user = User.from(id, name, email, phoneNumber, password)
+        val user = User.from(id, name, email, phoneNumber)
 
         user.id shouldBe id
         user.name shouldBe name
         user.email shouldBe email
         user.phoneNumber shouldBe phoneNumber
-        user.password shouldBe password
     }
 
     "withId should create a User from NewUser and an id" {
@@ -50,6 +48,5 @@ class UserTest : StringSpec({
         user.name shouldBe newUser.name
         user.email shouldBe newUser.email
         user.phoneNumber shouldBe newUser.phoneNumber
-        user.password shouldBe newUser.password
     }
 })

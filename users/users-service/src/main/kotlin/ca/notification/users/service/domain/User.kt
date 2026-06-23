@@ -11,8 +11,7 @@ data class User(
     val id: TypedUUID<User>,
     val name: String,
     val email: String,
-    val phoneNumber: String,
-    val password: String
+    val phoneNumber: String
 ) {
     companion object {
         fun createNew(
@@ -26,16 +25,14 @@ data class User(
             id: TypedUUID<User>,
             name: String,
             email: String,
-            phoneNumber: String,
-            password: String
-        ) = User(id, name, email, phoneNumber, password)
+            phoneNumber: String
+        ) = User(id, name, email, phoneNumber)
 
         fun withId(newUser: NewUser, id: TypedUUID<User>) = User(
             id = id,
             name = newUser.name,
             email = newUser.email,
-            phoneNumber = newUser.phoneNumber,
-            password = newUser.password
+            phoneNumber = newUser.phoneNumber
         )
     }
 }
