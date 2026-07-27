@@ -1,17 +1,15 @@
 package ca.notification.users.service.delivery.lambda
 
 import ca.notification.users.service.domain.TypedUUID
-import ca.notification.users.service.port.inbound.CreateUserUseCase
-import ca.notification.users.service.port.inbound.DeleteUserUseCase
-import ca.notification.users.service.port.inbound.FindUserUseCase
-import ca.notification.users.service.port.inbound.UpdateUserUseCase
+import ca.notification.users.service.port.inbound.*
 import org.slf4j.LoggerFactory
 
 class UserHandler(
     private val createUserUseCase: CreateUserUseCase,
     private val findUserUseCase: FindUserUseCase,
     private val updateUserUseCase: UpdateUserUseCase,
-    private val deleteUserUseCase: DeleteUserUseCase
+    private val deleteUserUseCase: DeleteUserUseCase,
+    private val authenticateUserUseCase: AuthenticateUserUseCase
 ) {
 
     private val logger = LoggerFactory.getLogger(UserHandler::class.java)
@@ -71,6 +69,23 @@ class UserHandler(
 
     fun getByEmail(email: String): UserResponse? {
         val user = findUserUseCase.findByEmail(email)
+        return user?.let {
+            UserResponse(
+                id = it.id.toString(),
+                name = it.name,
+                email = it.email,
+                phoneNumber = it.phoneNumber
+            )
+        }
+    }
+
+    fun authenticate(email: String, request: AuthenticateUserRequest): UserResponse? {
+        val user = authenticateUserUseCase.execute(
+            AuthenticateUserUseCase.Command(
+                email = email,
+                password = request.password
+            )
+        )
         return user?.let {
             UserResponse(
                 id = it.id.toString(),

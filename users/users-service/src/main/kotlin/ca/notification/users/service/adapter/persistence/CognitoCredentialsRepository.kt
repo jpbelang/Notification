@@ -72,4 +72,10 @@ class CognitoCredentialsRepository(
 
         cognitoClient.adminDeleteUser(request)
     }
+
+    override fun authenticate(email: String, password: String): Boolean {
+        // Cognito authentication typically requires a Client ID, which is not currently configured.
+        // For now, this is not implemented for Cognito.
+        return false
+    }
 }

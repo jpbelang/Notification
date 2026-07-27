@@ -2,10 +2,12 @@ package ca.notification.users.service.micronaut
 
 import io.micronaut.context.annotation.Factory
 import jakarta.inject.Singleton
+import ca.notification.users.service.application.AuthenticateUserService
 import ca.notification.users.service.application.CreateUserService
 import ca.notification.users.service.application.DeleteUserService
 import ca.notification.users.service.application.FindUserService
 import ca.notification.users.service.application.UpdateUserService
+import ca.notification.users.service.port.inbound.AuthenticateUserUseCase
 import ca.notification.users.service.port.inbound.CreateUserUseCase
 import ca.notification.users.service.port.inbound.DeleteUserUseCase
 import ca.notification.users.service.port.inbound.FindUserUseCase
@@ -50,13 +52,28 @@ class ServiceFactory {
     }
 
     @Singleton
+    fun authenticateUserUseCase(
+        userRepository: UserRepository,
+        credentialsRepository: CredentialsRepository
+    ): AuthenticateUserUseCase {
+        return AuthenticateUserService(userRepository, credentialsRepository)
+    }
+
+    @Singleton
     fun userHandler(
         createUserUseCase: CreateUserUseCase,
         findUserUseCase: FindUserUseCase,
         updateUserUseCase: UpdateUserUseCase,
-        deleteUserUseCase: DeleteUserUseCase
+        deleteUserUseCase: DeleteUserUseCase,
+        authenticateUserUseCase: AuthenticateUserUseCase
     ): UserHandler {
-        return UserHandler(createUserUseCase, findUserUseCase, updateUserUseCase, deleteUserUseCase)
+        return UserHandler(
+            createUserUseCase,
+            findUserUseCase,
+            updateUserUseCase,
+            deleteUserUseCase,
+            authenticateUserUseCase
+        )
     }
 
     @Singleton

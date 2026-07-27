@@ -31,3 +31,8 @@ data class UserResponse(
     override val email: String,
     override val phoneNumber: String
 ) : UserDto
+
+@Serdeable
+data class AuthenticateUserRequest(
+    val password: String
+)

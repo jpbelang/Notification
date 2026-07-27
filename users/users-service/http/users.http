@@ -32,6 +32,14 @@ GET {{host}}/users/84688428-9031-70c4-0a3c-082a96d481f0
 ### Get User by Email
 GET {{host}}/users/email/john@example.com
 
+### Authenticate User
+POST {{host}}/users/email/john@example.com/authenticate
+Content-Type: application/json
+
+{
+  "password": "Big<Secret!>33"
+}
+
 ### Update User
 PUT {{host}}/users/84688428-9031-70c4-0a3c-082a96d481f0
 Content-Type: application/json

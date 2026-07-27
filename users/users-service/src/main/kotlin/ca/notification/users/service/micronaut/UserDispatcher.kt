@@ -35,6 +35,11 @@ class UserDispatcher(private val userHandler: UserHandler) {
         return userHandler.getByEmail(email) ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "User not found")
     }
 
+    @Post("/email/{email}/authenticate")
+    fun authenticate(email: String, @Body request: AuthenticateUserRequest): UserResponse {
+        return userHandler.authenticate(email, request) ?: throw HttpStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials")
+    }
+
     @Delete("/{id}")
     @Status(HttpStatus.NO_CONTENT)
     fun delete(id: String) {

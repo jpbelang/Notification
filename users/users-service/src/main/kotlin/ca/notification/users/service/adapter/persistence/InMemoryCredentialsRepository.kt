@@ -39,6 +39,10 @@ class InMemoryCredentialsRepository : CredentialsRepository {
         credentials.remove(id)
     }
 
+    override fun authenticate(email: String, password: String): Boolean {
+        return credentials.values.any { it.email == email && it.password == password }
+    }
+
     fun findByUserId(userId: TypedUUID<User>): UserCredentials? = credentials[userId]
 }
 
