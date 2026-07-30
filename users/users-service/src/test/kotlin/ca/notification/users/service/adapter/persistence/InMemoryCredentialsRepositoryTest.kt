@@ -73,4 +73,26 @@ class InMemoryCredentialsRepositoryTest : StringSpec({
             repository.update(updatedUser1)
         }
     }
+
+    "should authenticate correct credentials" {
+        val email = "auth@example.com"
+        val password = "correct-password"
+        val user = User.createNew("Auth User", email, "123", password)
+        repository.save(user)
+
+        repository.authenticate(email, password) shouldBe true
+    }
+
+    "should fail to authenticate with wrong password" {
+        val email = "auth@example.com"
+        val password = "correct-password"
+        val user = User.createNew("Auth User", email, "123", password)
+        repository.save(user)
+
+        repository.authenticate(email, "wrong-password") shouldBe false
+    }
+
+    "should fail to authenticate non-existent email" {
+        repository.authenticate("nonexistent@example.com", "any") shouldBe false
+    }
 })
