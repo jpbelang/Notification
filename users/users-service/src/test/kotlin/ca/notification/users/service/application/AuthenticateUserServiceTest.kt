@@ -41,29 +41,30 @@ class AuthenticateUserServiceTest : StringSpec({
     "should return null when credentials are incorrect" {
         val email = "test@example.com"
         val password = "wrong-password"
+        val user = User.from(TypedUUID.create(), "Test User", email, "123")
 
+        every { userRepository.findByEmail(email) } returns user
         every { credentialsRepository.authenticate(email, password) } returns false
 
         val command = AuthenticateUserUseCase.Command(email, password)
         val result = service.execute(command)
 
         result shouldBe null
+        verify { userRepository.findByEmail(email) }
         verify { credentialsRepository.authenticate(email, password) }
-        verify(exactly = 0) { userRepository.findByEmail(any()) }
     }
 
-    "should return null when user is authenticated but not found in user repository" {
-        val email = "test@example.com"
-        val password = "password"
+    "should return null when user does not exist" {
+        val email = "nonexistent@example.com"
+        val password = "any-password"
 
-        every { credentialsRepository.authenticate(email, password) } returns true
         every { userRepository.findByEmail(email) } returns null
 
         val command = AuthenticateUserUseCase.Command(email, password)
         val result = service.execute(command)
 
         result shouldBe null
-        verify { credentialsRepository.authenticate(email, password) }
         verify { userRepository.findByEmail(email) }
+        verify(exactly = 0) { credentialsRepository.authenticate(any(), any()) }
     }
 })
