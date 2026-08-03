@@ -23,5 +23,7 @@ include(":app")
 include(":utils")
 include(":users:users-infrastructure")
 include(":users:users-service")
+include(":organisations:organisations-infrastructure")
+include(":organisations:organisations-service")
 
 rootProject.name = "Notification"

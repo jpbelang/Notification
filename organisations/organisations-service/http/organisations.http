@@ -1,0 +1,24 @@
+### Create Organisation
+POST {{host}}/organisations
+Content-Type: application/json
+
+{
+  "name": "Acme Corp"
+}
+
+### Get Organisation by ID
+GET {{host}}/organisations/84688428-9031-70c4-0a3c-082a96d481f0
+
+### Get All Organisations
+GET {{host}}/organisations
+
+### Update Organisation
+PUT {{host}}/organisations/84688428-9031-70c4-0a3c-082a96d481f0
+Content-Type: application/json
+
+{
+  "name": "Acme Corporation"
+}
+
+### Delete Organisation
+DELETE {{host}}/organisations/84688428-9031-70c4-0a3c-082a96d481f0
