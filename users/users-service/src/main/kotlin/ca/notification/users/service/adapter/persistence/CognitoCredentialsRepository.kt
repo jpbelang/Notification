@@ -19,7 +19,8 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExi
 @Requires(property = "micronaut.environment", value = "lambda")
 class CognitoCredentialsRepository(
     private val cognitoClient: CognitoIdentityProviderClient,
-    @Property(name = "cognito.user-pool-id") private val userPoolId: String
+    @Property(name = "cognito.user-pool-id") private val userPoolId: String,
+    @Property(name = "cognito.user-pool-client-id") private val userPoolClientId: String
 ) : CredentialsRepository {
 
     override fun save(user: NewUser): TypedUUID<User> {
