@@ -23,7 +23,8 @@ class CognitoCredentialsRepositoryTest : StringSpec({
 
     val cognitoClient = mockk<CognitoIdentityProviderClient>()
     val userPoolId = "us-east-1_abc123"
-    val repository = CognitoCredentialsRepository(cognitoClient, userPoolId)
+    val userPoolClientId = "abc123"
+    val repository = CognitoCredentialsRepository(cognitoClient, userPoolId, userPoolClientId)
 
     "should save credentials to cognito and return sub as user id" {
         val user = User.createNew(
