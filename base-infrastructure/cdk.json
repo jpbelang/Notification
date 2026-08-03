@@ -1,0 +1,61 @@
+{
+  "app": "../gradlew -q :base-infrastructure:run",
+  "watch": {
+    "include": [
+      "src/main/kotlin/**"
+    ],
+    "exclude": [
+      "README.md",
+      "cdk.context.json",
+      "cdk.out",
+      ".gradle",
+      "build"
+    ]
+  },
+  "context": {
+    "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/core:stackRelativeExports": true,
+    "@aws-cdk/aws-ec2:uniqueImdsv2TemplateName": true,
+    "@aws-cdk/aws-iam:minimizePolicies": true,
+    "@aws-cdk/core:validateSnapshotRemovalPolicy": true,
+    "@aws-cdk/aws-codepipeline:crossAccountKeyAliasStackSafeResourceName": true,
+    "@aws-cdk/aws-s3:createDefaultLoggingPolicy": true,
+    "@aws-cdk/aws-sns-subscriptions:restrictSqsDescryption": true,
+    "@aws-cdk/aws-apigateway:disableCloudWatchRole": true,
+    "@aws-cdk/core:enablePartitionLiterals": true,
+    "@aws-cdk/aws-events:eventsTargetQueueSameAccount": true,
+    "@aws-cdk/aws-iam:standardizedServicePrincipals": true,
+    "@aws-cdk/aws-ecs:disableLambdasForResourceLookups": true,
+    "@aws-cdk/aws-config:useContextRewrite": true,
+    "@aws-cdk/aws-s3:stepFunctionsDefaultEncryption": true,
+    "@aws-cdk/aws-kms:aliasNameRef": true,
+    "@aws-cdk/aws-autoscaling:generateLaunchTemplateInsteadOfLaunchConfig": true,
+    "@aws-cdk/core:includePrefixInUniqueNameGeneration": true,
+    "@aws-cdk/aws-efs:denyAnonymousAccess": true,
+    "@aws-cdk/aws-iam:importedRoleStackSafeDefaultPolicyName": true,
+    "@aws-cdk/aws-s3:keepNotificationCloudFormationStackPrereq": false,
+    "@aws-cdk/aws-ecs-patterns:defaultIsolatedVpc": true,
+    "@aws-cdk/aws-rds:databaseProxyDefaultResources": true,
+    "@aws-cdk/aws-opensearchservice:enableOpensearchMultiAzWithStandby": true,
+    "@aws-cdk/aws-lambda-nodejs:useLatestRuntimeVersion": true,
+    "@aws-cdk/aws-efs:mountTargetOrderInsensitiveLogicalId": true,
+    "@aws-cdk/aws-rds:auroraClusterChangeScopeOfInstanceParameterGroupWithLogExports": true,
+    "@aws-cdk/aws-iam:minimizeInlinedPolicies": true,
+    "@aws-cdk/aws-lambda:recognizeVersionProps": true,
+    "@aws-cdk/aws-codepipeline-actions:useNewElasticBeanstalkDeployActionExtensions": true,
+    "@aws-cdk/aws-ec2:launchTemplateDefaultUserData": true,
+    "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy": true,
+    "@aws-cdk/aws-route53-patters:useCertificate": true,
+    "@aws-cdk/custom-resources:installLatestRuntimeVersion": true,
+    "@aws-cdk/aws-codepipeline:setupS3BucketsCaseInsensitive": true,
+    "@aws-cdk/aws-lambda-event-sources:sqsVisibilityTimeout": true,
+    "@aws-cdk/aws-ecs:disableExplicitDeploymentControllerForCircuitBreaker": true,
+    "@aws-cdk/aws-s3:defaultBucketNotificationsV2": true,
+    "@aws-cdk/aws-rds:preventT3InstanceDefaultStorageEncryption": true,
+    "@aws-cdk/aws-codepipeline-actions:lambdaRoleDefaultPolicyBasicS3Access": true,
+    "@aws-cdk/aws-route53-targets:globalAcceleratorAliasTargetRegions": true,
+    "@aws-cdk/aws-lambda:advancedLogging": true,
+    "@aws-cdk/aws-lambda:v2RuntimeDefault": true
+  }
+}
