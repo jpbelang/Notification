@@ -1,5 +1,7 @@
 package ca.notification.users.service.application
 
+import ca.notification.users.service.domain.AuthTokens
+import ca.notification.users.service.domain.AuthenticationResult
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.port.inbound.AuthenticateUserUseCase
@@ -7,6 +9,7 @@ import ca.notification.users.service.port.outbound.CredentialsRepository
 import ca.notification.users.service.port.outbound.UserRepository
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -22,18 +25,21 @@ class AuthenticateUserServiceTest : StringSpec({
         clearAllMocks()
     }
 
-    "should return user when credentials are correct" {
+    "should return result when credentials are correct" {
         val email = "test@example.com"
         val password = "password"
         val user = User.from(TypedUUID.create(), "Test User", email, "123")
+        val tokens = AuthTokens("access", "id", "refresh", 3600)
 
-        every { credentialsRepository.authenticate(email, password) } returns true
         every { userRepository.findByEmail(email) } returns user
+        every { credentialsRepository.authenticate(email, password) } returns tokens
 
         val command = AuthenticateUserUseCase.Command(email, password)
         val result = service.execute(command)
 
-        result shouldBe user
+        result shouldNotBe null
+        result?.user shouldBe user
+        result?.tokens shouldBe tokens
         verify { credentialsRepository.authenticate(email, password) }
         verify { userRepository.findByEmail(email) }
     }
@@ -44,7 +50,7 @@ class AuthenticateUserServiceTest : StringSpec({
         val user = User.from(TypedUUID.create(), "Test User", email, "123")
 
         every { userRepository.findByEmail(email) } returns user
-        every { credentialsRepository.authenticate(email, password) } returns false
+        every { credentialsRepository.authenticate(email, password) } returns null
 
         val command = AuthenticateUserUseCase.Command(email, password)
         val result = service.execute(command)

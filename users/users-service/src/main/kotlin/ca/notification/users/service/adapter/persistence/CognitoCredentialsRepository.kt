@@ -1,9 +1,6 @@
 package ca.notification.users.service.adapter.persistence
 
-import ca.notification.users.service.domain.NewUser
-import ca.notification.users.service.domain.TypedUUID
-import ca.notification.users.service.domain.User
-import ca.notification.users.service.domain.UserExistsException
+import ca.notification.users.service.domain.*
 import ca.notification.users.service.port.outbound.CredentialsRepository
 import io.micronaut.context.annotation.Property
 import io.micronaut.context.annotation.Requires
@@ -78,7 +75,7 @@ class CognitoCredentialsRepository(
         cognitoClient.adminDeleteUser(request)
     }
 
-    override fun authenticate(email: String, password: String): Boolean {
+    override fun authenticate(email: String, password: String): AuthTokens? {
         val request = AdminInitiateAuthRequest.builder()
             .userPoolId(userPoolId)
             .clientId(userPoolClientId)
@@ -91,13 +88,23 @@ class CognitoCredentialsRepository(
 
         return try {
             val response = cognitoClient.adminInitiateAuth(request)
-            response.authenticationResult() != null
+            val authResult = response.authenticationResult()
+            if (authResult != null) {
+                AuthTokens(
+                    accessToken = authResult.accessToken(),
+                    idToken = authResult.idToken(),
+                    refreshToken = authResult.refreshToken(),
+                    expiresIn = authResult.expiresIn()
+                )
+            } else {
+                null
+            }
         } catch (e: NotAuthorizedException) {
-            false
+            null
         } catch (e: UserNotFoundException) {
-            false
+            null
         } catch (e: Exception) {
-            false
+            null
         }
     }
 }

@@ -6,6 +6,7 @@ import ca.notification.users.service.domain.UserExistsException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -107,15 +108,25 @@ class CognitoCredentialsRepositoryTest : StringSpec({
         }
     }
 
-    "should return true when authentication is successful" {
+    "should return tokens when authentication is successful" {
         val email = "test@example.com"
         val password = "password"
 
         every { cognitoClient.adminInitiateAuth(any<AdminInitiateAuthRequest>()) } returns AdminInitiateAuthResponse.builder()
-            .authenticationResult(AuthenticationResultType.builder().accessToken("token").build())
+            .authenticationResult(AuthenticationResultType.builder()
+                .accessToken("access-token")
+                .idToken("id-token")
+                .refreshToken("refresh-token")
+                .expiresIn(3600)
+                .build())
             .build()
 
-        repository.authenticate(email, password) shouldBe true
+        val tokens = repository.authenticate(email, password)
+        tokens shouldNotBe null
+        tokens?.accessToken shouldBe "access-token"
+        tokens?.idToken shouldBe "id-token"
+        tokens?.refreshToken shouldBe "refresh-token"
+        tokens?.expiresIn shouldBe 3600
 
         verify {
             cognitoClient.adminInitiateAuth(withArg<AdminInitiateAuthRequest> {
@@ -128,30 +139,30 @@ class CognitoCredentialsRepositoryTest : StringSpec({
         }
     }
 
-    "should return false when password is incorrect" {
+    "should return null when password is incorrect" {
         val email = "test@example.com"
         val password = "wrong-password"
 
         every { cognitoClient.adminInitiateAuth(any<AdminInitiateAuthRequest>()) } throws NotAuthorizedException.builder().build()
 
-        repository.authenticate(email, password) shouldBe false
+        repository.authenticate(email, password) shouldBe null
     }
 
-    "should return false when user is not found" {
+    "should return null when user is not found" {
         val email = "nonexistent@example.com"
         val password = "any"
 
         every { cognitoClient.adminInitiateAuth(any<AdminInitiateAuthRequest>()) } throws UserNotFoundException.builder().build()
 
-        repository.authenticate(email, password) shouldBe false
+        repository.authenticate(email, password) shouldBe null
     }
 
-    "should return false when any other exception occurs during authentication" {
+    "should return null when any other exception occurs during authentication" {
         val email = "test@example.com"
         val password = "password"
 
         every { cognitoClient.adminInitiateAuth(any<AdminInitiateAuthRequest>()) } throws RuntimeException("Something went wrong")
 
-        repository.authenticate(email, password) shouldBe false
+        repository.authenticate(email, password) shouldBe null
     }
 })

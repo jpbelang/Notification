@@ -1,5 +1,7 @@
 package ca.notification.users.service.delivery.lambda
 
+import ca.notification.users.service.domain.AuthTokens
+import ca.notification.users.service.domain.AuthenticationResult
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.port.inbound.*
@@ -35,16 +37,17 @@ class UserHandlerTest : StringSpec({
         val email = "test@example.com"
         val password = "password"
         val user = User.from(TypedUUID.create(), "Test User", email, "123")
+        val tokens = AuthTokens("access", "id", "refresh", 3600)
+        val result = AuthenticationResult(user, tokens)
         val request = AuthenticateUserRequest(password)
 
-        every { authenticateUserUseCase.execute(any()) } returns user
+        every { authenticateUserUseCase.execute(any()) } returns result
 
         val response = handler.authenticate(email, request)
 
         response shouldNotBe null
-        response?.email shouldBe email
-        response?.name shouldBe "Test User"
-        response?.id shouldBe user.id.toString()
+        response?.user shouldBe user
+        response?.tokens shouldBe tokens
 
         verify {
             authenticateUserUseCase.execute(

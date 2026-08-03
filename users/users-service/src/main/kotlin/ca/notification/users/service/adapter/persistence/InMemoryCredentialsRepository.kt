@@ -1,9 +1,6 @@
 package ca.notification.users.service.adapter.persistence
 
-import ca.notification.users.service.domain.NewUser
-import ca.notification.users.service.domain.TypedUUID
-import ca.notification.users.service.domain.User
-import ca.notification.users.service.domain.UserExistsException
+import ca.notification.users.service.domain.*
 import ca.notification.users.service.port.outbound.CredentialsRepository
 import io.micronaut.context.annotation.Requires
 import jakarta.inject.Singleton
@@ -39,8 +36,18 @@ class InMemoryCredentialsRepository : CredentialsRepository {
         credentials.remove(id)
     }
 
-    override fun authenticate(email: String, password: String): Boolean {
-        return credentials.values.any { it.email == email && it.password == password }
+    override fun authenticate(email: String, password: String): AuthTokens? {
+        val authenticated = credentials.values.any { it.email == email && it.password == password }
+        return if (authenticated) {
+            AuthTokens(
+                accessToken = "mock-access-token",
+                idToken = "mock-id-token",
+                refreshToken = "mock-refresh-token",
+                expiresIn = 3600
+            )
+        } else {
+            null
+        }
     }
 
     fun findByUserId(userId: TypedUUID<User>): UserCredentials? = credentials[userId]

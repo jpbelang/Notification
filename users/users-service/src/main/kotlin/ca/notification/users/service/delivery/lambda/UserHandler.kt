@@ -1,5 +1,6 @@
 package ca.notification.users.service.delivery.lambda
 
+import ca.notification.users.service.domain.AuthenticationResult
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.port.inbound.*
 import org.slf4j.LoggerFactory
@@ -79,21 +80,13 @@ class UserHandler(
         }
     }
 
-    fun authenticate(email: String, request: AuthenticateUserRequest): UserResponse? {
-        val user = authenticateUserUseCase.execute(
+    fun authenticate(email: String, request: AuthenticateUserRequest): AuthenticationResult? {
+        return authenticateUserUseCase.execute(
             AuthenticateUserUseCase.Command(
                 email = email,
                 password = request.password
             )
         )
-        return user?.let {
-            UserResponse(
-                id = it.id.toString(),
-                name = it.name,
-                email = it.email,
-                phoneNumber = it.phoneNumber
-            )
-        }
     }
 
     fun delete(id: String) {

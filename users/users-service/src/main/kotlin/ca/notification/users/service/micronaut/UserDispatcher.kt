@@ -7,6 +7,7 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.*
+import io.micronaut.http.cookie.Cookie
 import io.micronaut.http.exceptions.HttpStatusException
 import jakarta.inject.Singleton
 
@@ -36,8 +37,39 @@ class UserDispatcher(private val userHandler: UserHandler) {
     }
 
     @Post("/email/{email}/authenticate")
-    fun authenticate(email: String, @Body request: AuthenticateUserRequest): UserResponse {
-        return userHandler.authenticate(email, request) ?: throw HttpStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials")
+    fun authenticate(email: String, @Body request: AuthenticateUserRequest): HttpResponse<UserResponse> {
+        val result = userHandler.authenticate(email, request) ?: throw HttpStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials")
+
+        val userResponse = UserResponse(
+            id = result.user.id.toString(),
+            name = result.user.name,
+            email = result.user.email,
+            phoneNumber = result.user.phoneNumber
+        )
+
+        val accessTokenCookie = Cookie.of("accessToken", result.tokens.accessToken)
+            .httpOnly(true)
+            .path("/")
+            .maxAge(result.tokens.expiresIn.toLong())
+
+        val idTokenCookie = Cookie.of("idToken", result.tokens.idToken)
+            .httpOnly(true)
+            .path("/")
+            .maxAge(result.tokens.expiresIn.toLong())
+
+        var response = HttpResponse.ok(userResponse)
+            .cookie(accessTokenCookie)
+            .cookie(idTokenCookie)
+
+        result.tokens.refreshToken?.let {
+            val refreshTokenCookie = Cookie.of("refreshToken", it)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(30 * 24 * 60 * 60) // 30 days
+            response = response.cookie(refreshTokenCookie)
+        }
+
+        return response
     }
 
     @Delete("/{id}")

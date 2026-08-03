@@ -62,6 +62,11 @@ class UserAuthenticationTest(
         val responseBody = response.body ?: ""
         responseBody shouldContain "Auth User"
         responseBody shouldContain email
+
+        val setCookieHeaders = response.multiValueHeaders["Set-Cookie"] ?: response.headers["Set-Cookie"]?.let { listOf(it) } ?: emptyList()
+        setCookieHeaders.any { it.contains("accessToken=mock-access-token") } shouldBe true
+        setCookieHeaders.any { it.contains("idToken=mock-id-token") } shouldBe true
+        setCookieHeaders.any { it.contains("refreshToken=mock-refresh-token") } shouldBe true
     }
 
     "should return 401 for incorrect password" {

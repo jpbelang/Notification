@@ -40,6 +40,17 @@ Content-Type: application/json
   "password": "Big<Secret!>33"
 }
 
+> {%
+    client.test("Authentication successful", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Cookies are set", function() {
+        var setCookie = response.headers.valuesOf("Set-Cookie").join(";");
+        client.assert(setCookie.includes("accessToken"), "accessToken cookie not set");
+        client.assert(setCookie.includes("idToken"), "idToken cookie not set");
+    });
+%}
+
 ### Update User
 PUT {{host}}/users/84688428-9031-70c4-0a3c-082a96d481f0
 Content-Type: application/json

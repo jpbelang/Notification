@@ -80,7 +80,9 @@ class InMemoryCredentialsRepositoryTest : StringSpec({
         val user = User.createNew("Auth User", email, "123", password)
         repository.save(user)
 
-        repository.authenticate(email, password) shouldBe true
+        val tokens = repository.authenticate(email, password)
+        tokens shouldNotBe null
+        tokens?.accessToken shouldBe "mock-access-token"
     }
 
     "should fail to authenticate with wrong password" {
@@ -89,10 +91,10 @@ class InMemoryCredentialsRepositoryTest : StringSpec({
         val user = User.createNew("Auth User", email, "123", password)
         repository.save(user)
 
-        repository.authenticate(email, "wrong-password") shouldBe false
+        repository.authenticate(email, "wrong-password") shouldBe null
     }
 
     "should fail to authenticate non-existent email" {
-        repository.authenticate("nonexistent@example.com", "any") shouldBe false
+        repository.authenticate("nonexistent@example.com", "any") shouldBe null
     }
 })
