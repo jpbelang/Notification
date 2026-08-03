@@ -12,9 +12,14 @@ import io.mockk.verify
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthRequest
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthResponse
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesResponse
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType
+import software.amazon.awssdk.services.cognitoidentityprovider.model.NotAuthorizedException
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UserNotFoundException
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserType
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 import java.util.*
@@ -100,5 +105,53 @@ class CognitoCredentialsRepositoryTest : StringSpec({
         shouldThrow<UserExistsException> {
             repository.update(user)
         }
+    }
+
+    "should return true when authentication is successful" {
+        val email = "test@example.com"
+        val password = "password"
+
+        every { cognitoClient.adminInitiateAuth(any<AdminInitiateAuthRequest>()) } returns AdminInitiateAuthResponse.builder()
+            .authenticationResult(AuthenticationResultType.builder().accessToken("token").build())
+            .build()
+
+        repository.authenticate(email, password) shouldBe true
+
+        verify {
+            cognitoClient.adminInitiateAuth(withArg<AdminInitiateAuthRequest> {
+                it.userPoolId() shouldBe userPoolId
+                it.clientId() shouldBe userPoolClientId
+                it.authFlowAsString() shouldBe "ADMIN_NO_SRP_AUTH"
+                it.authParameters()["USERNAME"] shouldBe email
+                it.authParameters()["PASSWORD"] shouldBe password
+            })
+        }
+    }
+
+    "should return false when password is incorrect" {
+        val email = "test@example.com"
+        val password = "wrong-password"
+
+        every { cognitoClient.adminInitiateAuth(any<AdminInitiateAuthRequest>()) } throws NotAuthorizedException.builder().build()
+
+        repository.authenticate(email, password) shouldBe false
+    }
+
+    "should return false when user is not found" {
+        val email = "nonexistent@example.com"
+        val password = "any"
+
+        every { cognitoClient.adminInitiateAuth(any<AdminInitiateAuthRequest>()) } throws UserNotFoundException.builder().build()
+
+        repository.authenticate(email, password) shouldBe false
+    }
+
+    "should return false when any other exception occurs during authentication" {
+        val email = "test@example.com"
+        val password = "password"
+
+        every { cognitoClient.adminInitiateAuth(any<AdminInitiateAuthRequest>()) } throws RuntimeException("Something went wrong")
+
+        repository.authenticate(email, password) shouldBe false
     }
 })

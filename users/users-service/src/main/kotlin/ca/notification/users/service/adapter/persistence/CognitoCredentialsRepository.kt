@@ -11,8 +11,12 @@ import jakarta.inject.Singleton
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminDeleteUserRequest
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminUpdateUserAttributesRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType
+import software.amazon.awssdk.services.cognitoidentityprovider.model.NotAuthorizedException
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UserNotFoundException
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 
 @Singleton
@@ -75,8 +79,25 @@ class CognitoCredentialsRepository(
     }
 
     override fun authenticate(email: String, password: String): Boolean {
-        // Cognito authentication typically requires a Client ID, which is not currently configured.
-        // For now, this is not implemented for Cognito.
-        return false
+        val request = AdminInitiateAuthRequest.builder()
+            .userPoolId(userPoolId)
+            .clientId(userPoolClientId)
+            .authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
+            .authParameters(mapOf(
+                "USERNAME" to email,
+                "PASSWORD" to password
+            ))
+            .build()
+
+        return try {
+            val response = cognitoClient.adminInitiateAuth(request)
+            response.authenticationResult() != null
+        } catch (e: NotAuthorizedException) {
+            false
+        } catch (e: UserNotFoundException) {
+            false
+        } catch (e: Exception) {
+            false
+        }
     }
 }
