@@ -115,4 +115,47 @@ class OrganisationLambdaTest(
         val response = handler.handleRequest(request, null)
         response.statusCode shouldBe 404
     }
+
+    "should add a participant" {
+        val org = Organisation.from(TypedUUID.create(), "Participant Org")
+        organisationRepository.save(org)
+
+        val participantId = java.util.UUID.randomUUID().toString()
+        val body = mapOf("participantId" to participantId, "role" to "admin")
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "POST"
+            this.path = "/organisations/${org.id}/participants"
+            this.body = jsonMapper.writeValueAsString(body)
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 200
+        response.body shouldContain participantId
+        response.body shouldContain "admin"
+
+        val updatedOrg = organisationRepository.findById(org.id)
+        updatedOrg?.participants?.size shouldBe 1
+        updatedOrg?.participants?.get(0)?.id.toString() shouldBe participantId
+    }
+
+    "should remove a participant" {
+        val participantId = java.util.UUID.randomUUID()
+        val org = Organisation.from(
+            TypedUUID.create(),
+            "Removal Org",
+            listOf(ca.notification.organisations.service.domain.Participant(participantId, ca.notification.organisations.service.domain.Role.MEMBER))
+        )
+        organisationRepository.save(org)
+
+        val request = APIGatewayProxyRequestEvent().apply {
+            this.httpMethod = "DELETE"
+            this.path = "/organisations/${org.id}/participants/$participantId"
+        }
+
+        val response = handler.handleRequest(request, null)
+        response.statusCode shouldBe 200
+
+        val updatedOrg = organisationRepository.findById(org.id)
+        updatedOrg?.participants?.size shouldBe 0
+    }
 })

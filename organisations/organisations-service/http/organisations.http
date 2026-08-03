@@ -22,3 +22,15 @@ Content-Type: application/json
 
 ### Delete Organisation
 DELETE {{host}}/organisations/84688428-9031-70c4-0a3c-082a96d481f0
+
+### Add Participant
+POST {{host}}/organisations/84688428-9031-70c4-0a3c-082a96d481f0/participants
+Content-Type: application/json
+
+{
+  "participantId": "349071c8-2748-4e89-9a25-c63e2c3666b6",
+  "role": "admin"
+}
+
+### Remove Participant
+DELETE {{host}}/organisations/84688428-9031-70c4-0a3c-082a96d481f0/participants/349071c8-2748-4e89-9a25-c63e2c3666b6

@@ -24,4 +24,12 @@ class ServiceFactory {
     @Singleton
     fun deleteOrganisationUseCase(organisationRepository: OrganisationRepository): DeleteOrganisationUseCase =
         DeleteOrganisationService(organisationRepository)
+
+    @Singleton
+    fun addParticipantUseCase(organisationRepository: OrganisationRepository): AddParticipantUseCase =
+        AddParticipantService(organisationRepository)
+
+    @Singleton
+    fun removeParticipantUseCase(organisationRepository: OrganisationRepository): RemoveParticipantUseCase =
+        RemoveParticipantService(organisationRepository)
 }

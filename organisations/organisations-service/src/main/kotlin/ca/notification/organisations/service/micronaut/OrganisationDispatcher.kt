@@ -1,5 +1,6 @@
 package ca.notification.organisations.service.micronaut
 
+import ca.notification.organisations.service.delivery.lambda.AddParticipantRequest
 import ca.notification.organisations.service.delivery.lambda.OrganisationHandler
 import ca.notification.organisations.service.delivery.lambda.OrganisationRequest
 import ca.notification.organisations.service.delivery.lambda.OrganisationResponse
@@ -40,6 +41,16 @@ class OrganisationDispatcher(private val organisationHandler: OrganisationHandle
     @Status(HttpStatus.NO_CONTENT)
     fun delete(id: String) {
         organisationHandler.delete(id)
+    }
+
+    @Post("/{id}/participants")
+    fun addParticipant(id: String, @Body request: AddParticipantRequest): OrganisationResponse {
+        return organisationHandler.addParticipant(id, request)
+    }
+
+    @Delete("/{id}/participants/{participantId}")
+    fun removeParticipant(id: String, participantId: String): OrganisationResponse {
+        return organisationHandler.removeParticipant(id, participantId)
     }
 
     @Error(exception = OrganisationNotFoundException::class)

@@ -10,5 +10,18 @@ data class OrganisationRequest(
 @Serdeable
 data class OrganisationResponse(
     val id: String,
-    val name: String
+    val name: String,
+    val participants: List<ParticipantResponse> = emptyList()
+)
+
+@Serdeable
+data class ParticipantResponse(
+    val id: String,
+    val role: String
+)
+
+@Serdeable
+data class AddParticipantRequest(
+    val participantId: String,
+    val role: String
 )
