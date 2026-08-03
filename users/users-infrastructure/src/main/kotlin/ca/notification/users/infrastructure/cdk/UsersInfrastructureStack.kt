@@ -46,6 +46,21 @@ class UsersInfrastructureStack(
             .removalPolicy(RemovalPolicy.DESTROY)
             .build()
 
+        val clientProps = UserPoolClientProps.builder()
+            .userPool(userPool)
+            .authFlows(
+                AuthFlow.builder()
+                    .adminUserPassword(true)
+                    .userPassword(true)
+                    .custom(true)
+                    .userSrp(true).build()
+
+            ).build()
+
+        val client = userPool.addClient(
+            "web", clientProps
+        )
+
         val usersHandler = Function.Builder.create(this, "UsersHandler")
             .runtime(Runtime.JAVA_25)
             .handler("io.micronaut.function.aws.proxy.payload1.ApiGatewayProxyRequestEventFunction")
@@ -56,7 +71,8 @@ class UsersInfrastructureStack(
             .environment(mapOf(
                 "MICRONAUT_ENVIRONMENT" to "lambda",
                 "DYNAMODB_TABLE_NAME" to usersTable.tableName,
-                "COGNITO_USER_POOL_ID" to userPool.userPoolId
+                "COGNITO_USER_POOL_ID" to userPool.userPoolId,
+                "COGNITO_USER_POOL_CLIENT_ID" to client.userPoolClientId
             ))
             .build()
 
