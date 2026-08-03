@@ -12,9 +12,8 @@ class RemoveParticipantService(private val repository: OrganisationRepository) :
         val organisation = repository.findById(command.organisationId)
             ?: throw OrganisationNotFoundException(command.organisationId)
 
-        val updatedOrganisation = organisation.removeParticipant(command.participantId)
+        repository.removeParticipant(command.organisationId, command.participantId)
 
-        repository.save(updatedOrganisation)
-        return updatedOrganisation
+        return organisation.removeParticipant(command.participantId)
     }
 }

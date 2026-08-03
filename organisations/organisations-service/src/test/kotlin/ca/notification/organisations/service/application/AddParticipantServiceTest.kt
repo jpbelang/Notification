@@ -23,7 +23,7 @@ class AddParticipantServiceTest : StringSpec({
         val organisation = Organisation.from(orgId, "Test Org")
 
         every { repository.findById(orgId) } returns organisation
-        every { repository.save(any()) } returns Unit
+        every { repository.addParticipant(any(), any()) } returns Unit
 
         val result = service.execute(AddParticipantUseCase.Command(orgId, participantId, role))
 
@@ -31,6 +31,6 @@ class AddParticipantServiceTest : StringSpec({
         result.participants[0].id shouldBe participantId
         result.participants[0].role shouldBe role
 
-        verify { repository.save(match { it.participants.size == 1 && it.participants[0].id == participantId }) }
+        verify { repository.addParticipant(orgId, match { it.id == participantId && it.role == role }) }
     }
 })

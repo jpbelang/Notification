@@ -20,12 +20,12 @@ class RemoveParticipantServiceTest : StringSpec({
         val organisation = Organisation.from(orgId, "Test Org", listOf(Participant(participantId, Role.MEMBER)))
 
         every { repository.findById(orgId) } returns organisation
-        every { repository.save(any()) } returns Unit
+        every { repository.removeParticipant(any(), any()) } returns Unit
 
         val result = service.execute(RemoveParticipantUseCase.Command(orgId, participantId))
 
         result.participants.size shouldBe 0
 
-        verify { repository.save(match { it.participants.isEmpty() }) }
+        verify { repository.removeParticipant(orgId, participantId) }
     }
 })

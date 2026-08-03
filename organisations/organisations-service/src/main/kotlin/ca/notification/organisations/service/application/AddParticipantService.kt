@@ -13,11 +13,9 @@ class AddParticipantService(private val repository: OrganisationRepository) : Ad
         val organisation = repository.findById(command.organisationId)
             ?: throw OrganisationNotFoundException(command.organisationId)
 
-        val updatedOrganisation = organisation.addParticipant(
-            Participant(id = command.participantId, role = command.role)
-        )
+        val participant = Participant(id = command.participantId, role = command.role)
+        repository.addParticipant(command.organisationId, participant)
 
-        repository.save(updatedOrganisation)
-        return updatedOrganisation
+        return organisation.addParticipant(participant)
     }
 }
