@@ -1,5 +1,6 @@
 package ca.notification.users.infrastructure.cdk
 
+import ca.notification.base.infrastructure.cdk.BaseStackInfo
 import software.amazon.awscdk.CfnOutput
 import software.amazon.awscdk.Duration
 import software.amazon.awscdk.RemovalPolicy
@@ -72,7 +73,8 @@ class UsersInfrastructureStack(
                 "MICRONAUT_ENVIRONMENT" to "lambda",
                 "DYNAMODB_TABLE_NAME" to usersTable.tableName,
                 "COGNITO_USER_POOL_ID" to userPool.userPoolId,
-                "COGNITO_USER_POOL_CLIENT_ID" to client.userPoolClientId
+                "COGNITO_USER_POOL_CLIENT_ID" to client.userPoolClientId,
+                "NOTIFICATION_BUS_NAME" to BaseStackInfo.eventBusName()
             ))
             .build()
 

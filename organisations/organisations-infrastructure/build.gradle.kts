@@ -9,6 +9,7 @@ application {
 }
 
 dependencies {
+    implementation(project(":base-infrastructure"))
     implementation(project(":organisations:organisations-service"))
     implementation(libs.bundles.awsCdk)
 

@@ -1,5 +1,6 @@
 package ca.notification.organisations.infrastructure.cdk
 
+import ca.notification.base.infrastructure.cdk.BaseStackInfo
 import software.amazon.awscdk.CfnOutput
 import software.amazon.awscdk.Duration
 import software.amazon.awscdk.RemovalPolicy
@@ -43,7 +44,8 @@ class OrganisationsInfrastructureStack(
             .code(Code.fromAsset("../organisations-service/build/libs/organisations-service-all.jar"))
             .environment(mapOf(
                 "MICRONAUT_ENVIRONMENT" to "lambda",
-                "DYNAMODB_TABLE_NAME" to organisationsTable.tableName
+                "DYNAMODB_TABLE_NAME" to organisationsTable.tableName,
+                "NOTIFICATION_BUS_NAME" to BaseStackInfo.eventBusName()
             ))
             .build()
 
