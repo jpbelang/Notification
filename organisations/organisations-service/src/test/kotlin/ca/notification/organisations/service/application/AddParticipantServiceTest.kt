@@ -5,6 +5,7 @@ import ca.notification.organisations.service.domain.Role
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.inbound.AddParticipantUseCase
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
+import ca.notification.organisations.service.port.outbound.NotificationPublisher
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -14,9 +15,10 @@ import java.util.UUID
 
 class AddParticipantServiceTest : StringSpec({
     val repository = mockk<OrganisationRepository>()
-    val service = AddParticipantService(repository)
+    val publisher = mockk<NotificationPublisher>()
+    val service = AddParticipantService(repository, publisher)
 
-    "should add a participant to an organisation" {
+    "should add a participant and publish updated organisation" {
         val orgId = TypedUUID.create<Organisation>()
         val participantId = UUID.randomUUID()
         val role = Role.ADMIN
@@ -24,6 +26,7 @@ class AddParticipantServiceTest : StringSpec({
 
         every { repository.findById(orgId) } returns organisation
         every { repository.addParticipant(any(), any()) } returns Unit
+        every { publisher.publish(any()) } returns Unit
 
         val result = service.execute(AddParticipantUseCase.Command(orgId, participantId, role))
 
@@ -32,5 +35,6 @@ class AddParticipantServiceTest : StringSpec({
         result.participants[0].role shouldBe role
 
         verify { repository.addParticipant(orgId, match { it.id == participantId && it.role == role }) }
+        verify { publisher.publish(match { it.type == "UpdatedOrganisation" && (it.payload as Organisation).id == orgId }) }
     }
 })

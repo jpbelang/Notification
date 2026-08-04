@@ -1,14 +1,19 @@
 package ca.notification.organisations.service.application
 
 import ca.notification.organisations.service.domain.Organisation
+import ca.notification.organisations.service.domain.NotificationEvent
 import ca.notification.organisations.service.domain.OrganisationNotFoundException
 import ca.notification.organisations.service.domain.Participant
 import ca.notification.organisations.service.port.inbound.AddParticipantUseCase
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
+import ca.notification.organisations.service.port.outbound.NotificationPublisher
 import jakarta.inject.Singleton
 
 @Singleton
-class AddParticipantService(private val repository: OrganisationRepository) : AddParticipantUseCase {
+class AddParticipantService(
+    private val repository: OrganisationRepository,
+    private val notificationPublisher: NotificationPublisher
+) : AddParticipantUseCase {
     override fun execute(command: AddParticipantUseCase.Command): Organisation {
         val organisation = repository.findById(command.organisationId)
             ?: throw OrganisationNotFoundException(command.organisationId)
@@ -16,6 +21,8 @@ class AddParticipantService(private val repository: OrganisationRepository) : Ad
         val participant = Participant(id = command.participantId, role = command.role)
         repository.addParticipant(command.organisationId, participant)
 
-        return organisation.addParticipant(participant)
+        val updatedOrg = organisation.addParticipant(participant)
+        notificationPublisher.publish(NotificationEvent("UpdatedOrganisation", updatedOrg))
+        return updatedOrg
     }
 }

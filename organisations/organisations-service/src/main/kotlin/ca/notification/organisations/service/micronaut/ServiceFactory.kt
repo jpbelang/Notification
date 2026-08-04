@@ -22,18 +22,30 @@ class ServiceFactory {
         FindOrganisationService(organisationRepository)
 
     @Singleton
-    fun updateOrganisationUseCase(organisationRepository: OrganisationRepository): UpdateOrganisationUseCase =
-        UpdateOrganisationService(organisationRepository)
+    fun updateOrganisationUseCase(
+        organisationRepository: OrganisationRepository,
+        notificationPublisher: NotificationPublisher
+    ): UpdateOrganisationUseCase =
+        UpdateOrganisationService(organisationRepository, notificationPublisher)
 
     @Singleton
-    fun deleteOrganisationUseCase(organisationRepository: OrganisationRepository): DeleteOrganisationUseCase =
-        DeleteOrganisationService(organisationRepository)
+    fun deleteOrganisationUseCase(
+        organisationRepository: OrganisationRepository,
+        notificationPublisher: NotificationPublisher
+    ): DeleteOrganisationUseCase =
+        DeleteOrganisationService(organisationRepository, notificationPublisher)
 
     @Singleton
-    fun addParticipantUseCase(organisationRepository: OrganisationRepository): AddParticipantUseCase =
-        AddParticipantService(organisationRepository)
+    fun addParticipantUseCase(
+        organisationRepository: OrganisationRepository,
+        notificationPublisher: NotificationPublisher
+    ): AddParticipantUseCase =
+        AddParticipantService(organisationRepository, notificationPublisher)
 
     @Singleton
-    fun removeParticipantUseCase(organisationRepository: OrganisationRepository): RemoveParticipantUseCase =
-        RemoveParticipantService(organisationRepository)
+    fun removeParticipantUseCase(
+        organisationRepository: OrganisationRepository,
+        notificationPublisher: NotificationPublisher
+    ): RemoveParticipantUseCase =
+        RemoveParticipantService(organisationRepository, notificationPublisher)
 }

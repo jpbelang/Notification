@@ -86,9 +86,10 @@ class OrganisationLambdaTest(
         response.body shouldContain "Org 2"
     }
 
-    "should update organisation" {
+    "should update organisation and publish event" {
         val org = Organisation.from(TypedUUID.create(), "Old Name")
         organisationRepository.save(org)
+        notificationPublisher.clear()
 
         val request = APIGatewayProxyRequestEvent().apply {
             this.httpMethod = "PUT"
@@ -101,11 +102,17 @@ class OrganisationLambdaTest(
         response.body shouldContain "New Name"
 
         organisationRepository.findById(org.id)?.name shouldBe "New Name"
+
+        val events = notificationPublisher.getEvents()
+        events shouldHaveSize 1
+        events[0].type shouldBe "UpdatedOrganisation"
+        (events[0].payload as Organisation).name shouldBe "New Name"
     }
 
-    "should delete organisation" {
+    "should delete organisation and publish event" {
         val org = Organisation.from(TypedUUID.create(), "Delete Me")
         organisationRepository.save(org)
+        notificationPublisher.clear()
 
         val request = APIGatewayProxyRequestEvent().apply {
             this.httpMethod = "DELETE"
@@ -116,6 +123,11 @@ class OrganisationLambdaTest(
         response.statusCode shouldBe 204
 
         organisationRepository.findById(org.id) shouldBe null
+
+        val events = notificationPublisher.getEvents()
+        events shouldHaveSize 1
+        events[0].type shouldBe "DeletedOrganisation"
+        (events[0].payload as Organisation).id shouldBe org.id
     }
 
     "should return 404 for non-existent organisation" {
@@ -128,9 +140,10 @@ class OrganisationLambdaTest(
         response.statusCode shouldBe 404
     }
 
-    "should add a participant" {
+    "should add a participant and publish event" {
         val org = Organisation.from(TypedUUID.create(), "Participant Org")
         organisationRepository.save(org)
+        notificationPublisher.clear()
 
         val participantId = java.util.UUID.randomUUID().toString()
         val body = mapOf("participantId" to participantId, "role" to "admin")
@@ -148,9 +161,14 @@ class OrganisationLambdaTest(
         val updatedOrg = organisationRepository.findById(org.id)
         updatedOrg?.participants?.size shouldBe 1
         updatedOrg?.participants?.get(0)?.id.toString() shouldBe participantId
+
+        val events = notificationPublisher.getEvents()
+        events shouldHaveSize 1
+        events[0].type shouldBe "UpdatedOrganisation"
+        (events[0].payload as Organisation).id shouldBe org.id
     }
 
-    "should remove a participant" {
+    "should remove a participant and publish event" {
         val participantId = java.util.UUID.randomUUID()
         val org = Organisation.from(
             TypedUUID.create(),
@@ -158,6 +176,7 @@ class OrganisationLambdaTest(
             listOf(ca.notification.organisations.service.domain.Participant(participantId, ca.notification.organisations.service.domain.Role.MEMBER))
         )
         organisationRepository.save(org)
+        notificationPublisher.clear()
 
         val request = APIGatewayProxyRequestEvent().apply {
             this.httpMethod = "DELETE"
@@ -169,5 +188,10 @@ class OrganisationLambdaTest(
 
         val updatedOrg = organisationRepository.findById(org.id)
         updatedOrg?.participants?.size shouldBe 0
+
+        val events = notificationPublisher.getEvents()
+        events shouldHaveSize 1
+        events[0].type shouldBe "UpdatedOrganisation"
+        (events[0].payload as Organisation).id shouldBe org.id
     }
 })
