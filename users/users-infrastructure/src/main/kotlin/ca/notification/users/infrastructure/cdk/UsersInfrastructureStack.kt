@@ -12,9 +12,15 @@ import software.amazon.awscdk.services.dynamodb.Attribute
 import software.amazon.awscdk.services.dynamodb.AttributeType
 import software.amazon.awscdk.services.dynamodb.GlobalSecondaryIndexProps
 import software.amazon.awscdk.services.dynamodb.Table
+import software.amazon.awscdk.services.events.EventBus
+import software.amazon.awscdk.services.events.EventPattern
+import software.amazon.awscdk.services.events.Rule
+import software.amazon.awscdk.services.events.targets.SqsQueue
 import software.amazon.awscdk.services.lambda.Code
 import software.amazon.awscdk.services.lambda.Function
 import software.amazon.awscdk.services.lambda.Runtime
+import software.amazon.awscdk.services.lambda.eventsources.SqsEventSource
+import software.amazon.awscdk.services.sqs.Queue
 import software.constructs.Construct
 
 class UsersInfrastructureStack(
@@ -96,5 +102,32 @@ class UsersInfrastructureStack(
         CfnOutput.Builder.create(this, "UsersHandlerName")
             .value(usersHandler.functionName)
             .build()
+
+        val notificationBus = EventBus.fromEventBusName(this, "NotificationBusImport", BaseStackInfo.eventBusName())
+
+        val notificationQueue = Queue.Builder.create(this, "OrganisationNotificationQueue")
+            .visibilityTimeout(Duration.seconds(30))
+            .build()
+
+        Rule.Builder.create(this, "NewOrganisationRule")
+            .eventBus(notificationBus)
+            .eventPattern(EventPattern.builder()
+                .detailType(listOf("NewOrganisation"))
+                .build())
+            .targets(listOf(SqsQueue.Builder.create(notificationQueue).build()))
+            .build()
+
+        val notificationHandler = Function.Builder.create(this, "OrganisationNotificationHandler")
+            .runtime(Runtime.JAVA_25)
+            .handler("ca.notification.users.service.micronaut.OrganisationNotificationDispatcher")
+            .memorySize(512)
+            .timeout(Duration.seconds(30))
+            .code(Code.fromAsset("../users-service/build/libs/users-service-all.jar"))
+            .environment(mapOf(
+                "MICRONAUT_ENVIRONMENT" to "lambda"
+            ))
+            .build()
+
+        notificationHandler.addEventSource(SqsEventSource.Builder.create(notificationQueue).build())
     }
 }

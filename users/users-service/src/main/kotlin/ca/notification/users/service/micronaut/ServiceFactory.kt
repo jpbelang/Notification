@@ -7,14 +7,17 @@ import ca.notification.users.service.application.CreateUserService
 import ca.notification.users.service.application.DeleteUserService
 import ca.notification.users.service.application.FindUserService
 import ca.notification.users.service.application.UpdateUserService
+import ca.notification.users.service.application.ProcessOrganisationNotificationService
 import ca.notification.users.service.port.inbound.AuthenticateUserUseCase
 import ca.notification.users.service.port.inbound.CreateUserUseCase
 import ca.notification.users.service.port.inbound.DeleteUserUseCase
 import ca.notification.users.service.port.inbound.FindUserUseCase
 import ca.notification.users.service.port.inbound.UpdateUserUseCase
+import ca.notification.users.service.port.inbound.ProcessOrganisationNotificationUseCase
 import ca.notification.users.service.port.outbound.UserRepository
 import ca.notification.users.service.port.outbound.CredentialsRepository
 import ca.notification.users.service.delivery.lambda.UserHandler
+import ca.notification.users.service.delivery.lambda.OrganisationNotificationHandler
 import io.micronaut.context.annotation.Primary
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
@@ -60,6 +63,11 @@ class ServiceFactory {
     }
 
     @Singleton
+    fun processOrganisationNotificationUseCase(): ProcessOrganisationNotificationUseCase {
+        return ProcessOrganisationNotificationService()
+    }
+
+    @Singleton
     fun userHandler(
         createUserUseCase: CreateUserUseCase,
         findUserUseCase: FindUserUseCase,
@@ -74,6 +82,13 @@ class ServiceFactory {
             deleteUserUseCase,
             authenticateUserUseCase
         )
+    }
+
+    @Singleton
+    fun organisationNotificationHandler(
+        processOrganisationNotificationUseCase: ProcessOrganisationNotificationUseCase
+    ): OrganisationNotificationHandler {
+        return OrganisationNotificationHandler(processOrganisationNotificationUseCase)
     }
 
     @Singleton
