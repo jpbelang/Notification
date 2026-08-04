@@ -2,6 +2,7 @@ package ca.notification.users.service.micronaut
 
 import io.micronaut.context.annotation.Factory
 import jakarta.inject.Singleton
+import jakarta.inject.Provider
 import ca.notification.users.service.application.AuthenticateUserService
 import ca.notification.users.service.application.CreateUserService
 import ca.notification.users.service.application.DeleteUserService
@@ -97,9 +98,10 @@ class ServiceFactory {
     }
 
     @Singleton @Primary
-    fun dynamoDbClient(): DynamoDbClient {
+    fun dynamoDbClient(): Provider<DynamoDbClient> {
+        // fix me ?
         print("building client")
-        return DynamoDbClient.builder().build()
+        return Provider { DynamoDbClient.builder().build() }
     }
 
 }
