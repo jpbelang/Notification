@@ -1,6 +1,7 @@
 package ca.notification.organisations.service.application
 
 import ca.notification.organisations.service.domain.Organisation
+import ca.notification.organisations.service.domain.OrganisationParticipantAddedPayload
 import ca.notification.organisations.service.domain.Role
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.inbound.AddParticipantUseCase
@@ -30,11 +31,14 @@ class AddParticipantServiceTest : StringSpec({
 
         val result = service.execute(AddParticipantUseCase.Command(orgId, participantId, role))
 
-        result.participants.size shouldBe 1
-        result.participants[0].id shouldBe participantId
-        result.participants[0].role shouldBe role
+        result.id shouldBe orgId
+        result.name shouldBe "Test Org"
 
         verify { repository.addParticipant(orgId, match { it.id == participantId && it.role == role }) }
-        verify { publisher.publish(match { it.type == "UpdatedOrganisation" && (it.payload as Organisation).id == orgId }) }
+        verify { publisher.publish(match { 
+            it.type == "OrganisationParticipantAdded" && 
+            (it.payload as OrganisationParticipantAddedPayload).organisation.id == orgId &&
+            (it.payload as OrganisationParticipantAddedPayload).participant.id == participantId
+        }) }
     }
 })

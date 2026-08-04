@@ -13,14 +13,10 @@ import java.util.concurrent.ConcurrentHashMap
 @Requires(property = "micronaut.environment", notEquals = "lambda")
 class InMemoryOrganisationRepository : OrganisationRepository {
     private val organisations = ConcurrentHashMap<TypedUUID<Organisation>, Organisation>()
+    private val participants = ConcurrentHashMap<TypedUUID<Organisation>, MutableList<Participant>>()
 
     override fun save(organisation: Organisation) {
-        val existing = organisations[organisation.id]
-        if (existing != null) {
-            organisations[organisation.id] = organisation.copy(participants = existing.participants)
-        } else {
-            organisations[organisation.id] = organisation
-        }
+        organisations[organisation.id] = organisation
     }
 
     override fun findById(id: TypedUUID<Organisation>): Organisation? {
@@ -33,15 +29,14 @@ class InMemoryOrganisationRepository : OrganisationRepository {
 
     override fun delete(organisation: Organisation) {
         organisations.remove(organisation.id)
+        participants.remove(organisation.id)
     }
 
     override fun addParticipant(organisationId: TypedUUID<Organisation>, participant: Participant) {
-        val org = organisations[organisationId] ?: return
-        organisations[organisationId] = org.addParticipant(participant)
+        participants.computeIfAbsent(organisationId) { mutableListOf() }.add(participant)
     }
 
     override fun removeParticipant(organisationId: TypedUUID<Organisation>, participantId: UUID) {
-        val org = organisations[organisationId] ?: return
-        organisations[organisationId] = org.removeParticipant(participantId)
+        participants[organisationId]?.removeIf { it.id == participantId }
     }
 }

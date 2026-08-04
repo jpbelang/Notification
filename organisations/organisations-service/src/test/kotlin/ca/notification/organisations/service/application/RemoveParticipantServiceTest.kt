@@ -19,7 +19,7 @@ class RemoveParticipantServiceTest : StringSpec({
     "should remove a participant and publish updated organisation" {
         val orgId = TypedUUID.create<Organisation>()
         val participantId = UUID.randomUUID()
-        val organisation = Organisation.from(orgId, "Test Org", listOf(Participant(participantId, Role.MEMBER)))
+        val organisation = Organisation.from(orgId, "Test Org")
 
         every { repository.findById(orgId) } returns organisation
         every { repository.removeParticipant(any(), any()) } returns Unit
@@ -27,9 +27,13 @@ class RemoveParticipantServiceTest : StringSpec({
 
         val result = service.execute(RemoveParticipantUseCase.Command(orgId, participantId))
 
-        result.participants.size shouldBe 0
+        result.id shouldBe orgId
 
         verify { repository.removeParticipant(orgId, participantId) }
-        verify { publisher.publish(match { it.type == "UpdatedOrganisation" && (it.payload as Organisation).id == orgId }) }
+        verify { publisher.publish(match { 
+            it.type == "OrganisationParticipantRemoved" && 
+            (it.payload as OrganisationParticipantRemovedPayload).organisation.id == orgId &&
+            (it.payload as OrganisationParticipantRemovedPayload).participantId == participantId
+        }) }
     }
 })

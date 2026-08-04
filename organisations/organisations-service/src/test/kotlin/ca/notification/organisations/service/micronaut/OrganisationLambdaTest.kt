@@ -3,6 +3,8 @@ package ca.notification.organisations.service.micronaut
 import ca.notification.organisations.service.adapter.persistence.InMemoryOrganisationRepository
 import ca.notification.organisations.service.adapter.messaging.InMemoryNotificationPublisher
 import ca.notification.organisations.service.domain.Organisation
+import ca.notification.organisations.service.domain.OrganisationParticipantAddedPayload
+import ca.notification.organisations.service.domain.OrganisationParticipantRemovedPayload
 import ca.notification.organisations.service.domain.TypedUUID
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
 import io.kotest.core.spec.style.StringSpec
@@ -155,25 +157,21 @@ class OrganisationLambdaTest(
 
         val response = handler.handleRequest(request, null)
         response.statusCode shouldBe 200
-        response.body shouldContain participantId
-        response.body shouldContain "admin"
-
-        val updatedOrg = organisationRepository.findById(org.id)
-        updatedOrg?.participants?.size shouldBe 1
-        updatedOrg?.participants?.get(0)?.id.toString() shouldBe participantId
 
         val events = notificationPublisher.getEvents()
         events shouldHaveSize 1
-        events[0].type shouldBe "UpdatedOrganisation"
-        (events[0].payload as Organisation).id shouldBe org.id
+        events[0].type shouldBe "OrganisationParticipantAdded"
+        val payload = events[0].payload as OrganisationParticipantAddedPayload
+        payload.organisation.id shouldBe org.id
+        payload.participant.id.toString() shouldBe participantId
+        payload.participant.role.name.lowercase() shouldBe "admin"
     }
 
     "should remove a participant and publish event" {
         val participantId = java.util.UUID.randomUUID()
         val org = Organisation.from(
             TypedUUID.create(),
-            "Removal Org",
-            listOf(ca.notification.organisations.service.domain.Participant(participantId, ca.notification.organisations.service.domain.Role.MEMBER))
+            "Removal Org"
         )
         organisationRepository.save(org)
         notificationPublisher.clear()
@@ -186,12 +184,11 @@ class OrganisationLambdaTest(
         val response = handler.handleRequest(request, null)
         response.statusCode shouldBe 200
 
-        val updatedOrg = organisationRepository.findById(org.id)
-        updatedOrg?.participants?.size shouldBe 0
-
         val events = notificationPublisher.getEvents()
         events shouldHaveSize 1
-        events[0].type shouldBe "UpdatedOrganisation"
-        (events[0].payload as Organisation).id shouldBe org.id
+        events[0].type shouldBe "OrganisationParticipantRemoved"
+        val payload = events[0].payload as OrganisationParticipantRemovedPayload
+        payload.organisation.id shouldBe org.id
+        payload.participantId shouldBe participantId
     }
 })

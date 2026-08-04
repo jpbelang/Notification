@@ -102,19 +102,10 @@ class DynamoOrganisationRepository(
 
     private fun List<Map<String, AttributeValue>>.toOrganisation(): Organisation {
         val orgItem = find { it["sk"]?.s() == "organisation" } ?: throw IllegalStateException("Organisation item not found")
-        val participantItems = filter { it["sk"]?.s()?.startsWith("participant#") == true }
-
-        val participants = participantItems.map { item ->
-            Participant(
-                id = UUID.fromString(item["id"]!!.s()),
-                role = Role.fromString(item["role"]!!.s())
-            )
-        }
 
         return Organisation.from(
             id = TypedUUID.fromString(orgItem["id"]!!.s()),
-            name = orgItem["name"]!!.s(),
-            participants = participants
+            name = orgItem["name"]!!.s()
         )
     }
 }

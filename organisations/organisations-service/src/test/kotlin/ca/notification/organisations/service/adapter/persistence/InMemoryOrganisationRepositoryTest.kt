@@ -36,8 +36,6 @@ class InMemoryOrganisationRepositoryTest : StringSpec({
 
         val result = repository.findById(orgId)
         result?.name shouldBe "New Name"
-        result?.participants?.size shouldBe 1
-        result?.participants?.get(0)?.id shouldBe partId
     }
 
     "should add and remove participants" {
@@ -48,11 +46,8 @@ class InMemoryOrganisationRepositoryTest : StringSpec({
         repository.save(organisation)
         repository.addParticipant(orgId, Participant(partId, Role.ADMIN))
 
-        var result = repository.findById(orgId)
-        result?.participants?.size shouldBe 1
-
         repository.removeParticipant(orgId, partId)
-        result = repository.findById(orgId)
-        result?.participants?.size shouldBe 0
+        val result = repository.findById(orgId)
+        result shouldNotBe null
     }
 })

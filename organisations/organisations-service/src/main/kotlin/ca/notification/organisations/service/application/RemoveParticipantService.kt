@@ -2,6 +2,7 @@ package ca.notification.organisations.service.application
 
 import ca.notification.organisations.service.domain.Organisation
 import ca.notification.organisations.service.domain.NotificationEvent
+import ca.notification.organisations.service.domain.OrganisationParticipantRemovedPayload
 import ca.notification.organisations.service.domain.OrganisationNotFoundException
 import ca.notification.organisations.service.port.inbound.RemoveParticipantUseCase
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
@@ -18,9 +19,8 @@ class RemoveParticipantService(
             ?: throw OrganisationNotFoundException(command.organisationId)
 
         repository.removeParticipant(command.organisationId, command.participantId)
-
-        val updatedOrg = organisation.removeParticipant(command.participantId)
-        notificationPublisher.publish(NotificationEvent("UpdatedOrganisation", updatedOrg))
-        return updatedOrg
+        
+        notificationPublisher.publish(NotificationEvent("OrganisationParticipantRemoved", OrganisationParticipantRemovedPayload(organisation, command.participantId)))
+        return organisation
     }
 }

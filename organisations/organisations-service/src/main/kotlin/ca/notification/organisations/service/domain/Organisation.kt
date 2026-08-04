@@ -21,31 +21,20 @@ data class Participant(
 
 data class Organisation(
     val id: TypedUUID<Organisation>,
-    val name: String,
-    val participants: List<Participant> = emptyList()
+    val name: String
 ) {
     companion object {
         fun createNew(name: String) = NewOrganisation(name)
 
         fun from(
             id: TypedUUID<Organisation>,
-            name: String,
-            participants: List<Participant> = emptyList()
-        ) = Organisation(id, name, participants)
+            name: String
+        ) = Organisation(id, name)
 
         fun withId(newOrganisation: NewOrganisation, id: TypedUUID<Organisation>) = Organisation(
             id = id,
-            name = newOrganisation.name,
-            participants = emptyList()
+            name = newOrganisation.name
         )
-    }
-
-    fun addParticipant(participant: Participant): Organisation {
-        return copy(participants = participants + participant)
-    }
-
-    fun removeParticipant(participantId: UUID): Organisation {
-        return copy(participants = participants.filter { it.id != participantId })
     }
 }
 

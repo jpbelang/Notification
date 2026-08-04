@@ -66,7 +66,6 @@ class OrganisationHandler(
 
     private fun Organisation.toResponse() = OrganisationResponse(
         id = id.toString(),
-        name = name,
-        participants = participants.map { ParticipantResponse(id = it.id.toString(), role = it.role.name.lowercase()) }
+        name = name
     )
 }

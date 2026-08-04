@@ -77,7 +77,7 @@ class DynamoOrganisationRepositoryTest : StringSpec({
         }
     }
 
-    "should find organisation by id and join participants" {
+    "should find organisation by id and not join participants" {
         val orgId = TypedUUID.create<Organisation>()
         val partId = UUID.randomUUID()
         
@@ -102,7 +102,5 @@ class DynamoOrganisationRepositoryTest : StringSpec({
 
         organisation shouldNotBe null
         organisation?.name shouldBe "Test Org"
-        organisation?.participants?.size shouldBe 1
-        organisation?.participants?.get(0)?.role shouldBe Role.MEMBER
     }
 })
