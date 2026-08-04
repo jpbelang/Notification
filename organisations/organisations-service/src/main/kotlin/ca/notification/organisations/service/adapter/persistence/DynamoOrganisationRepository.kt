@@ -23,7 +23,7 @@ class DynamoOrganisationRepository(
         val request = PutItemRequest.builder()
             .tableName(tableName)
             .item(mapOf(
-                "pk" to AttributeValue.builder().s("id=${organisation.id}").build(),
+                "pk" to AttributeValue.builder().s("organisationId=${organisation.id}").build(),
                 "sk" to AttributeValue.builder().s("organisation").build(),
                 "id" to AttributeValue.builder().s(organisation.id.toString()).build(),
                 "name" to AttributeValue.builder().s(organisation.name).build()
@@ -36,7 +36,7 @@ class DynamoOrganisationRepository(
         val request = PutItemRequest.builder()
             .tableName(tableName)
             .item(mapOf(
-                "pk" to AttributeValue.builder().s("id=$organisationId").build(),
+                "pk" to AttributeValue.builder().s("organisationId=$organisationId").build(),
                 "sk" to AttributeValue.builder().s("participant#${participant.id}").build(),
                 "id" to AttributeValue.builder().s(participant.id.toString()).build(),
                 "role" to AttributeValue.builder().s(participant.role.name).build()
@@ -49,7 +49,7 @@ class DynamoOrganisationRepository(
         val request = DeleteItemRequest.builder()
             .tableName(tableName)
             .key(mapOf(
-                "pk" to AttributeValue.builder().s("id=$organisationId").build(),
+                "pk" to AttributeValue.builder().s("organisationId=$organisationId").build(),
                 "sk" to AttributeValue.builder().s("participant#$participantId").build()
             ))
             .build()
@@ -95,7 +95,7 @@ class DynamoOrganisationRepository(
         val request = QueryRequest.builder()
             .tableName(tableName)
             .keyConditionExpression("pk = :pk")
-            .expressionAttributeValues(mapOf(":pk" to AttributeValue.builder().s("id=$id").build()))
+            .expressionAttributeValues(mapOf(":pk" to AttributeValue.builder().s("organisationId=$id").build()))
             .build()
         return dynamoDbClient.query(request).items()
     }

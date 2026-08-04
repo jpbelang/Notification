@@ -33,7 +33,7 @@ class DynamoUserRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.putItem(withArg<PutItemRequest> {
                 it.tableName() shouldBe tableName
-                it.item()["pk"]?.s() shouldBe "id=${user.id}"
+                it.item()["pk"]?.s() shouldBe "userId=${user.id}"
                 it.item()["sk"]?.s() shouldBe "user"
                 it.item()["gsipk"]?.s() shouldBe "user=${user.email}"
                 it.item()["gsisk"]?.s() shouldBe "user"
@@ -64,7 +64,7 @@ class DynamoUserRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.getItem(withArg<GetItemRequest> {
                 it.tableName() shouldBe tableName
-                it.key()["pk"]?.s() shouldBe "id=$userId"
+                it.key()["pk"]?.s() shouldBe "userId=$userId"
                 it.key()["sk"]?.s() shouldBe "user"
             })
         }
@@ -92,6 +92,27 @@ class DynamoUserRepositoryTest : StringSpec({
                 it.keyConditionExpression() shouldBe "gsipk = :pk AND gsisk = :sk"
                 it.expressionAttributeValues()[":pk"]?.s() shouldBe "user=john@example.com"
                 it.expressionAttributeValues()[":sk"]?.s() shouldBe "user"
+            })
+        }
+    }
+    
+    "should delete user from dynamodb" {
+        val user = User.from(
+            id = TypedUUID.create(),
+            name = "John Doe",
+            email = "john@example.com",
+            phoneNumber = "555-1234"
+        )
+
+        every { dynamoDbClient.deleteItem(any<DeleteItemRequest>()) } returns DeleteItemResponse.builder().build()
+
+        repository.delete(user)
+
+        verify {
+            dynamoDbClient.deleteItem(withArg<DeleteItemRequest> {
+                it.tableName() shouldBe tableName
+                it.key()["pk"]?.s() shouldBe "userId=${user.id}"
+                it.key()["sk"]?.s() shouldBe "user"
             })
         }
     }

@@ -7,6 +7,7 @@ import ca.notification.organisations.service.domain.TypedUUID
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.collections.shouldHaveSize
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -34,7 +35,7 @@ class DynamoOrganisationRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.putItem(withArg<PutItemRequest> {
                 it.tableName() shouldBe tableName
-                it.item()["pk"]?.s() shouldBe "id=$orgId"
+                it.item()["pk"]?.s() shouldBe "organisationId=$orgId"
                 it.item()["sk"]?.s() shouldBe "organisation"
                 it.item()["name"]?.s() shouldBe "Test Org"
             })
@@ -53,7 +54,7 @@ class DynamoOrganisationRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.putItem(withArg<PutItemRequest> {
                 it.tableName() shouldBe tableName
-                it.item()["pk"]?.s() shouldBe "id=$orgId"
+                it.item()["pk"]?.s() shouldBe "organisationId=$orgId"
                 it.item()["sk"]?.s() shouldBe "participant#$partId"
                 it.item()["role"]?.s() shouldBe "ADMIN"
             })
@@ -71,7 +72,7 @@ class DynamoOrganisationRepositoryTest : StringSpec({
         verify {
             dynamoDbClient.deleteItem(withArg<DeleteItemRequest> {
                 it.tableName() shouldBe tableName
-                it.key()["pk"]?.s() shouldBe "id=$orgId"
+                it.key()["pk"]?.s() shouldBe "organisationId=$orgId"
                 it.key()["sk"]?.s() shouldBe "participant#$partId"
             })
         }
@@ -83,13 +84,13 @@ class DynamoOrganisationRepositoryTest : StringSpec({
         
         val items = listOf(
             mapOf(
-                "pk" to AttributeValue.builder().s("id=$orgId").build(),
+                "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
                 "sk" to AttributeValue.builder().s("organisation").build(),
                 "id" to AttributeValue.builder().s(orgId.toString()).build(),
                 "name" to AttributeValue.builder().s("Test Org").build()
             ),
             mapOf(
-                "pk" to AttributeValue.builder().s("id=$orgId").build(),
+                "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
                 "sk" to AttributeValue.builder().s("participant#$partId").build(),
                 "id" to AttributeValue.builder().s(partId.toString()).build(),
                 "role" to AttributeValue.builder().s("MEMBER").build()
@@ -102,5 +103,37 @@ class DynamoOrganisationRepositoryTest : StringSpec({
 
         organisation shouldNotBe null
         organisation?.name shouldBe "Test Org"
+    }
+
+    "should delete organisation and all its items" {
+        val orgId = TypedUUID.create<Organisation>()
+        val partId = UUID.randomUUID()
+        val organisation = Organisation.from(orgId, "Delete Me")
+
+        val items = listOf(
+            mapOf(
+                "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
+                "sk" to AttributeValue.builder().s("organisation").build()
+            ),
+            mapOf(
+                "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
+                "sk" to AttributeValue.builder().s("participant#$partId").build()
+            )
+        )
+
+        every { dynamoDbClient.query(any<QueryRequest>()) } returns QueryResponse.builder().items(items).build()
+        every { dynamoDbClient.transactWriteItems(any<TransactWriteItemsRequest>()) } returns TransactWriteItemsResponse.builder().build()
+
+        repository.delete(organisation)
+
+        verify {
+            dynamoDbClient.transactWriteItems(withArg<TransactWriteItemsRequest> {
+                it.transactItems() shouldHaveSize 2
+                it.transactItems()[0].delete().key()["pk"]?.s() shouldBe "organisationId=$orgId"
+                it.transactItems()[0].delete().key()["sk"]?.s() shouldBe "organisation"
+                it.transactItems()[1].delete().key()["pk"]?.s() shouldBe "organisationId=$orgId"
+                it.transactItems()[1].delete().key()["sk"]?.s() shouldBe "participant#$partId"
+            })
+        }
     }
 })
