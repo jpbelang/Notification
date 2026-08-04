@@ -3,6 +3,7 @@ package ca.notification.organisations.service.micronaut
 import ca.notification.organisations.service.application.*
 import ca.notification.organisations.service.port.inbound.*
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
+import ca.notification.organisations.service.port.outbound.NotificationPublisher
 import io.micronaut.context.annotation.Factory
 import jakarta.inject.Singleton
 
@@ -10,8 +11,11 @@ import jakarta.inject.Singleton
 class ServiceFactory {
 
     @Singleton
-    fun createOrganisationUseCase(organisationRepository: OrganisationRepository): CreateOrganisationUseCase =
-        CreateOrganisationService(organisationRepository)
+    fun createOrganisationUseCase(
+        organisationRepository: OrganisationRepository,
+        notificationPublisher: NotificationPublisher
+    ): CreateOrganisationUseCase =
+        CreateOrganisationService(organisationRepository, notificationPublisher)
 
     @Singleton
     fun findOrganisationUseCase(organisationRepository: OrganisationRepository): FindOrganisationUseCase =

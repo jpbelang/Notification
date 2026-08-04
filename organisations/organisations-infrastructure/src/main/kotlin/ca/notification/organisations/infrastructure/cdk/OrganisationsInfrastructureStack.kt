@@ -11,6 +11,7 @@ import software.amazon.awscdk.services.dynamodb.Attribute
 import software.amazon.awscdk.services.dynamodb.AttributeType
 import software.amazon.awscdk.services.dynamodb.GlobalSecondaryIndexProps
 import software.amazon.awscdk.services.dynamodb.Table
+import software.amazon.awscdk.services.events.EventBus
 import software.amazon.awscdk.services.lambda.Code
 import software.amazon.awscdk.services.lambda.Function
 import software.amazon.awscdk.services.lambda.Runtime
@@ -50,6 +51,9 @@ class OrganisationsInfrastructureStack(
             .build()
 
         organisationsTable.grantReadWriteData(organisationsHandler)
+
+        val notificationBus = EventBus.fromEventBusName(this, "NotificationBusImport", BaseStackInfo.eventBusName())
+        notificationBus.grantPutEventsTo(organisationsHandler)
 
         LambdaRestApi.Builder.create(this, "OrganisationsApi")
             .handler(organisationsHandler)

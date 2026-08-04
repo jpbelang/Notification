@@ -1,12 +1,14 @@
 package ca.notification.organisations.service.micronaut
 
 import ca.notification.organisations.service.adapter.persistence.InMemoryOrganisationRepository
+import ca.notification.organisations.service.adapter.messaging.InMemoryNotificationPublisher
 import ca.notification.organisations.service.domain.Organisation
 import ca.notification.organisations.service.domain.TypedUUID
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.string.shouldContain
 import io.micronaut.context.ApplicationContext
 import io.micronaut.function.aws.proxy.payload1.ApiGatewayProxyRequestEventFunction
@@ -17,12 +19,17 @@ import io.micronaut.test.extensions.kotest5.annotation.MicronautTest
 class OrganisationLambdaTest(
     private val applicationContext: ApplicationContext,
     private val jsonMapper: JsonMapper,
-    private val organisationRepository: InMemoryOrganisationRepository
+    private val organisationRepository: InMemoryOrganisationRepository,
+    private val notificationPublisher: InMemoryNotificationPublisher
 ) : StringSpec({
 
     val handler = ApiGatewayProxyRequestEventFunction(applicationContext)
 
-    "should create an organisation and return 201" {
+    beforeTest {
+        notificationPublisher.clear()
+    }
+
+    "should create an organisation, return 201 and publish event" {
         val body = mapOf("name" to "Test Org")
         val request = APIGatewayProxyRequestEvent().apply {
             this.httpMethod = "POST"
@@ -43,6 +50,11 @@ class OrganisationLambdaTest(
         val saved = organisationRepository.findById(TypedUUID.fromString(id))
         saved shouldNotBe null
         saved?.name shouldBe "Test Org"
+
+        val events = notificationPublisher.getEvents()
+        events shouldHaveSize 1
+        events[0].type shouldBe "NewOrganisation"
+        (events[0].payload as Organisation).name shouldBe "Test Org"
     }
 
     "should get organisation by id" {
