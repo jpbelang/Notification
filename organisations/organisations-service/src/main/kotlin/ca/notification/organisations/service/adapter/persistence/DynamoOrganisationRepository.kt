@@ -57,18 +57,26 @@ class DynamoOrganisationRepository(
     }
 
     override fun findById(id: TypedUUID<Organisation>): Organisation? {
-        val items = queryAllForOrg(id)
-        return if (items.isNotEmpty()) items.toOrganisation() else null
+        val request = GetItemRequest.builder()
+            .tableName(tableName)
+            .key(mapOf(
+                "pk" to AttributeValue.builder().s("organisationId=$id").build(),
+                "sk" to AttributeValue.builder().s("organisation").build()
+            ))
+            .build()
+        val response = dynamoDbClient.getItem(request)
+        return if (response.hasItem()) response.item().toOrganisation() else null
     }
 
     override fun findAll(): List<Organisation> {
         val request = ScanRequest.builder()
             .tableName(tableName)
+            .filterExpression("sk = :sk")
+            .expressionAttributeValues(mapOf(":sk" to AttributeValue.builder().s("organisation").build()))
             .build()
         val response = dynamoDbClient.scan(request)
         return response.items()
-            .groupBy { it["pk"]!!.s() }
-            .values
+            .filter { it["sk"]?.s() == "organisation" }
             .map { it.toOrganisation() }
     }
 
@@ -102,10 +110,13 @@ class DynamoOrganisationRepository(
 
     private fun List<Map<String, AttributeValue>>.toOrganisation(): Organisation {
         val orgItem = find { it["sk"]?.s() == "organisation" } ?: throw IllegalStateException("Organisation item not found")
+        return orgItem.toOrganisation()
+    }
 
+    private fun Map<String, AttributeValue>.toOrganisation(): Organisation {
         return Organisation.from(
-            id = TypedUUID.fromString(orgItem["id"]!!.s()),
-            name = orgItem["name"]!!.s()
+            id = TypedUUID.fromString(this["id"]!!.s()),
+            name = this["name"]!!.s()
         )
     }
 }

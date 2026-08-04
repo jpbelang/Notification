@@ -80,29 +80,27 @@ class DynamoOrganisationRepositoryTest : StringSpec({
 
     "should find organisation by id and not join participants" {
         val orgId = TypedUUID.create<Organisation>()
-        val partId = UUID.randomUUID()
         
-        val items = listOf(
-            mapOf(
-                "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
-                "sk" to AttributeValue.builder().s("organisation").build(),
-                "id" to AttributeValue.builder().s(orgId.toString()).build(),
-                "name" to AttributeValue.builder().s("Test Org").build()
-            ),
-            mapOf(
-                "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
-                "sk" to AttributeValue.builder().s("participant#$partId").build(),
-                "id" to AttributeValue.builder().s(partId.toString()).build(),
-                "role" to AttributeValue.builder().s("MEMBER").build()
-            )
+        val item = mapOf(
+            "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
+            "sk" to AttributeValue.builder().s("organisation").build(),
+            "id" to AttributeValue.builder().s(orgId.toString()).build(),
+            "name" to AttributeValue.builder().s("Test Org").build()
         )
 
-        every { dynamoDbClient.query(any<QueryRequest>()) } returns QueryResponse.builder().items(items).build()
+        every { dynamoDbClient.getItem(any<GetItemRequest>()) } returns GetItemResponse.builder().item(item).build()
 
         val organisation = repository.findById(orgId)
 
         organisation shouldNotBe null
         organisation?.name shouldBe "Test Org"
+        
+        verify {
+            dynamoDbClient.getItem(withArg<GetItemRequest> {
+                it.key()["pk"]?.s() shouldBe "organisationId=$orgId"
+                it.key()["sk"]?.s() shouldBe "organisation"
+            })
+        }
     }
 
     "should delete organisation and all its items" {
@@ -135,5 +133,58 @@ class DynamoOrganisationRepositoryTest : StringSpec({
                 it.transactItems()[1].delete().key()["sk"]?.s() shouldBe "participant#$partId"
             })
         }
+    }
+
+    "should find all organisations" {
+        val orgId1 = TypedUUID.create<Organisation>()
+        val orgId2 = TypedUUID.create<Organisation>()
+
+        val items = listOf(
+            mapOf(
+                "pk" to AttributeValue.builder().s("organisationId=$orgId1").build(),
+                "sk" to AttributeValue.builder().s("organisation").build(),
+                "id" to AttributeValue.builder().s(orgId1.toString()).build(),
+                "name" to AttributeValue.builder().s("Org 1").build()
+            ),
+            mapOf(
+                "pk" to AttributeValue.builder().s("organisationId=$orgId2").build(),
+                "sk" to AttributeValue.builder().s("organisation").build(),
+                "id" to AttributeValue.builder().s(orgId2.toString()).build(),
+                "name" to AttributeValue.builder().s("Org 2").build()
+            )
+        )
+
+        every { dynamoDbClient.scan(any<ScanRequest>()) } returns ScanResponse.builder().items(items).build()
+
+        val result = repository.findAll()
+
+        result shouldHaveSize 2
+        result.map { it.name } shouldBe listOf("Org 1", "Org 2")
+    }
+
+    "findAll should ignore non-organisation items and not throw exception" {
+        val orgId = TypedUUID.create<Organisation>()
+        val items = listOf(
+            mapOf(
+                "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
+                "sk" to AttributeValue.builder().s("organisation").build(),
+                "id" to AttributeValue.builder().s(orgId.toString()).build(),
+                "name" to AttributeValue.builder().s("Test Org").build()
+            ),
+            mapOf(
+                "pk" to AttributeValue.builder().s("organisationId=$orgId").build(),
+                "sk" to AttributeValue.builder().s("participant#some-id").build()
+            ),
+            mapOf(
+                "pk" to AttributeValue.builder().s("something-else").build(),
+                "sk" to AttributeValue.builder().s("other").build()
+            )
+        )
+
+        every { dynamoDbClient.scan(any<ScanRequest>()) } returns ScanResponse.builder().items(items).build()
+
+        val result = repository.findAll()
+        result shouldHaveSize 1
+        result[0].name shouldBe "Test Org"
     }
 })
