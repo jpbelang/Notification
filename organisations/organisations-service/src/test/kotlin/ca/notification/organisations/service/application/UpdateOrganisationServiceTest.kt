@@ -1,6 +1,7 @@
 package ca.notification.organisations.service.application
 
 import ca.notification.organisations.service.domain.Organisation
+import ca.notification.organisations.service.domain.OrganisationPayload
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.inbound.UpdateOrganisationUseCase
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
@@ -29,6 +30,6 @@ class UpdateOrganisationServiceTest : StringSpec({
 
         result.name shouldBe newName
         verify { repository.save(match { it.name == newName && it.id == id }) }
-        verify { publisher.publish(match { it.type == "UpdatedOrganisation" && (it.payload as Organisation).name == newName }) }
+        verify { publisher.publish(match { it.type == "UpdatedOrganisation" && (it.payload as OrganisationPayload).organisation.name == newName }) }
     }
 })

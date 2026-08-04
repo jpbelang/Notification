@@ -2,6 +2,7 @@ package ca.notification.organisations.service.application
 
 import ca.notification.organisations.service.domain.Organisation
 import ca.notification.organisations.service.domain.NotificationEvent
+import ca.notification.organisations.service.domain.OrganisationPayload
 import ca.notification.organisations.service.domain.OrganisationNotFoundException
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.inbound.DeleteOrganisationUseCase
@@ -15,6 +16,6 @@ class DeleteOrganisationService(
     override fun execute(id: TypedUUID<Organisation>) {
         val organisation = organisationRepository.findById(id) ?: throw OrganisationNotFoundException(id)
         organisationRepository.delete(organisation)
-        notificationPublisher.publish(NotificationEvent("DeletedOrganisation", organisation))
+        notificationPublisher.publish(NotificationEvent("DeletedOrganisation", OrganisationPayload(organisation)))
     }
 }

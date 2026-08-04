@@ -2,6 +2,7 @@ package ca.notification.organisations.service.application
 
 import ca.notification.organisations.service.domain.Organisation
 import ca.notification.organisations.service.domain.NotificationEvent
+import ca.notification.organisations.service.domain.OrganisationPayload
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.inbound.CreateOrganisationUseCase
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
@@ -17,7 +18,7 @@ class CreateOrganisationService(
             name = command.name
         )
         organisationRepository.save(organisation)
-        notificationPublisher.publish(NotificationEvent("NewOrganisation", organisation))
+        notificationPublisher.publish(NotificationEvent("NewOrganisation", OrganisationPayload(organisation)))
         return organisation
     }
 }

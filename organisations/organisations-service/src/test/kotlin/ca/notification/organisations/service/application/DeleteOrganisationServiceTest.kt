@@ -1,6 +1,7 @@
 package ca.notification.organisations.service.application
 
 import ca.notification.organisations.service.domain.Organisation
+import ca.notification.organisations.service.domain.OrganisationPayload
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
 import ca.notification.organisations.service.port.outbound.NotificationPublisher
@@ -25,6 +26,6 @@ class DeleteOrganisationServiceTest : StringSpec({
         service.execute(id)
 
         verify { repository.delete(org) }
-        verify { publisher.publish(match { it.type == "DeletedOrganisation" && (it.payload as Organisation).id == id }) }
+        verify { publisher.publish(match { it.type == "DeletedOrganisation" && (it.payload as OrganisationPayload).organisation.id == id }) }
     }
 })

@@ -2,9 +2,13 @@ package ca.notification.organisations.service.domain
 
 import java.util.UUID
 
-data class NotificationEvent(
+data class NotificationEvent<T>(
     val type: String,
-    val payload: Any
+    val payload: T
+)
+
+data class OrganisationPayload(
+    val organisation: Organisation
 )
 
 data class OrganisationParticipantAddedPayload(

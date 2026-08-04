@@ -18,7 +18,7 @@ class EventBridgeNotificationPublisher(
     @Property(name = "notification.bus.name") private val busName: String
 ) : NotificationPublisher {
 
-    override fun publish(event: NotificationEvent) {
+    override fun publish(event: NotificationEvent<*>) {
         val detail = objectMapper.writeValueAsString(event.payload)
         
         val entry = PutEventsRequestEntry.builder()

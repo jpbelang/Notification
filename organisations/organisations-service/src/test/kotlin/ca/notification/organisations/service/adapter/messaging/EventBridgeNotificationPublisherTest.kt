@@ -2,6 +2,7 @@ package ca.notification.organisations.service.adapter.messaging
 
 import ca.notification.organisations.service.domain.NotificationEvent
 import ca.notification.organisations.service.domain.Organisation
+import ca.notification.organisations.service.domain.OrganisationPayload
 import ca.notification.organisations.service.domain.TypedUUID
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -26,7 +27,7 @@ class EventBridgeNotificationPublisherTest(
 
     "should serialize payload and call putEvents" {
         val org = Organisation.from(TypedUUID.create(), "Test Org")
-        val event = NotificationEvent("NewOrganisation", org)
+        val event = NotificationEvent("NewOrganisation", OrganisationPayload(org))
         
         every { eventBridgeClient.putEvents(any<PutEventsRequest>()) } returns mockk()
 
@@ -38,6 +39,7 @@ class EventBridgeNotificationPublisherTest(
                 val entry = request.entries()[0]
                 entry.eventBusName() shouldBe busName
                 entry.detailType() shouldBe "NewOrganisation"
+                entry.detail() shouldContain "\"organisation\":{"
                 entry.detail() shouldContain "\"name\":\"Test Org\""
                 entry.detail() shouldContain "\"id\":"
             })

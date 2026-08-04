@@ -3,6 +3,7 @@ package ca.notification.organisations.service.micronaut
 import ca.notification.organisations.service.adapter.persistence.InMemoryOrganisationRepository
 import ca.notification.organisations.service.adapter.messaging.InMemoryNotificationPublisher
 import ca.notification.organisations.service.domain.Organisation
+import ca.notification.organisations.service.domain.OrganisationPayload
 import ca.notification.organisations.service.domain.OrganisationParticipantAddedPayload
 import ca.notification.organisations.service.domain.OrganisationParticipantRemovedPayload
 import ca.notification.organisations.service.domain.TypedUUID
@@ -56,7 +57,7 @@ class OrganisationLambdaTest(
         val events = notificationPublisher.getEvents()
         events shouldHaveSize 1
         events[0].type shouldBe "NewOrganisation"
-        (events[0].payload as Organisation).name shouldBe "Test Org"
+        (events[0].payload as OrganisationPayload).organisation.name shouldBe "Test Org"
     }
 
     "should get organisation by id" {
@@ -108,7 +109,7 @@ class OrganisationLambdaTest(
         val events = notificationPublisher.getEvents()
         events shouldHaveSize 1
         events[0].type shouldBe "UpdatedOrganisation"
-        (events[0].payload as Organisation).name shouldBe "New Name"
+        (events[0].payload as OrganisationPayload).organisation.name shouldBe "New Name"
     }
 
     "should delete organisation and publish event" {
@@ -129,7 +130,7 @@ class OrganisationLambdaTest(
         val events = notificationPublisher.getEvents()
         events shouldHaveSize 1
         events[0].type shouldBe "DeletedOrganisation"
-        (events[0].payload as Organisation).id shouldBe org.id
+        (events[0].payload as OrganisationPayload).organisation.id shouldBe org.id
     }
 
     "should return 404 for non-existent organisation" {

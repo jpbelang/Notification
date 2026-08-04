@@ -9,12 +9,12 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @Singleton
 @Requires(missingProperty = "notification.bus.name")
 class InMemoryNotificationPublisher : NotificationPublisher {
-    private val events = ConcurrentLinkedQueue<NotificationEvent>()
+    private val events = ConcurrentLinkedQueue<NotificationEvent<*>>()
 
-    override fun publish(event: NotificationEvent) {
+    override fun publish(event: NotificationEvent<*>) {
         events.add(event)
     }
 
-    fun getEvents(): List<NotificationEvent> = events.toList()
+    fun getEvents(): List<NotificationEvent<*>> = events.toList()
     fun clear() = events.clear()
 }
