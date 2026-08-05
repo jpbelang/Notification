@@ -1,45 +1,78 @@
 # Notification
- 
- [![Build and Test](https://github.com/jpbelang/Notification/actions/workflows/build.yml/badge.svg)](https://github.com/jpbelang/Notification/actions/workflows/build.yml)
- ![Coverage](.github/badges/jacoco.svg)
- ![Branches](.github/badges/branches.svg)
- 
- This project uses [Gradle](https://gradle.org/).
-To build and run the application, use the *Gradle* tool window by clicking the Gradle icon in the right-hand toolbar,
-or run it directly from the terminal:
 
-* Run `./gradlew run` to build and run the application.
-* Run `./gradlew build` to only build the application.
-* Run `./gradlew check` to run all checks, including tests.
-* Run `./gradlew clean` to clean all build outputs.
+[![Build and Test](https://github.com/jpbelang/Notification/actions/workflows/build.yml/badge.svg)](https://github.com/jpbelang/Notification/actions/workflows/build.yml)
+![Coverage](.github/badges/jacoco.svg)
+![Branches](.github/badges/branches.svg)
 
-Note the usage of the Gradle Wrapper (`./gradlew`).
-This is the suggested way to use Gradle in production projects.
+## Project Overview
 
-[Learn more about the Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html).
+This is a multi-service event-driven application designed to handle notifications, user management, and organizational structures. It follows **Hexagonal Architecture** principles and is built using a modern Kotlin/JVM stack, deployed on AWS using Serverless components.
 
-[Learn more about Gradle tasks](https://docs.gradle.org/current/userguide/command_line_interface.html#common_tasks).
+## Tech Stack
 
-This project follows the suggested multi-module setup and consists of the `app`, `utils`, and `users` subprojects.
-The `users` project contains the `users-infrastructure` and `users-service` submodules.
-`users-infrastructure` includes an AWS CDK setup in Kotlin for infrastructure management.
-The shared build logic was extracted to a convention plugin located in `buildSrc`.
+- **Language:** Kotlin 2.1.x
+- **Platform:** JVM 23
+- **Framework:** Micronaut 4.7.x
+- **Build System:** Gradle 9.6.1 (Kotlin DSL)
+- **Persistence:** DynamoDB (Single-table design)
+- **Authentication:** AWS Cognito (JWT tokens returned as Http-only cookies)
+- **Messaging:** AWS EventBridge (`NotificationBus`) & SQS
+- **Infrastructure:** AWS CDK (Kotlin)
+- **Testing:** Kotest, MockK, Micronaut Test
 
-### AWS CDK Setup
-The infrastructure for the `users` service is defined using AWS CDK in the `users-infrastructure` module.
-To use it, you need to have `node` and the AWS CDK CLI installed.
+## Architectural Principles
 
-- **CDK App:** `users/users-infrastructure/src/main/kotlin/ca/notification/users/infrastructure/cdk/UsersInfrastructureApp.kt`
-- **CDK Stack:** `users/users-infrastructure/src/main/kotlin/ca/notification/users/infrastructure/cdk/UsersInfrastructureStack.kt`
-- **Configuration:** `users/users-infrastructure/cdk.json`
+- **Hexagonal Architecture:** Business logic is kept pure and separated from infrastructure concerns via ports and adapters.
+- **Constructor Injection:** DI is managed via `ServiceFactory` classes, minimizing Micronaut annotations in core and infrastructure logic.
+- **Single Table Design:** Each domain service (Users, Organisations) uses its own DynamoDB table with a single-table layout for efficient data retrieval.
+- **Event-Driven:** Services communicate asynchronously via the shared `NotificationBus`.
 
-To synthesize the CloudFormation template:
+## Project Structure
+
+The project is organized into several modules:
+
+- **`base-infrastructure`**: Shared AWS resources, primarily the `NotificationBus` (EventBridge).
+- **`users`**: User management domain.
+  - `users-service`: Micronaut-based service for user CRUD and authentication.
+  - `users-infrastructure`: CDK code for deploying the user service, Cognito, and event consumers.
+- **`organisations`**: Organisation management domain.
+  - `organisations-service`: Micronaut-based service for managing organisations and participants.
+  - `organisations-infrastructure`: CDK code for the organisation service and its DynamoDB table.
+- **`utils`**: Shared Kotlin utilities and common logic.
+- **`app`**: The application entry point.
+
+## Event-Driven Integration
+
+The `organisations-service` publishes lifecycle events (e.g., `NewOrganisation`, `OrganisationParticipantAdded`) to the shared `NotificationBus`. 
+
+The `users-service` consumes all organization-related events via an SQS queue and an EventBridge rule. These events are dispatched to `ProcessOrganisationNotificationService` for downstream processing.
+
+## Development & Building
+
+### Prerequisites
+- JDK 23
+- AWS CLI configured
+- Node.js & CDK CLI installed (`npm install -g aws-cdk`)
+
+### Common Gradle Tasks
+Use the Gradle Wrapper (`./gradlew`) for consistent builds:
+- `./gradlew build`: Build all subprojects.
+- `./gradlew check`: Run all tests and quality checks.
+- `./gradlew clean`: Remove all build artifacts.
+
+Note: The project uses a version catalog (`gradle/libs.versions.toml`) and shared build logic in `buildSrc`.
+
+### Infrastructure Deployment (CDK)
+
+Each infrastructure module contains its own `cdk.json` and can be synthesized independently:
+
 ```bash
+# Example for users infrastructure
 cd users/users-infrastructure
-cdk synth
+npx cdk synth
 ```
-(This will use `./gradlew -q :users:users-infrastructure:run` as the executable command).
 
-This project uses a version catalog (see `gradle/libs.versions.toml`) to declare and version dependencies,
-a `.junie/AGENTS.md` file for project-specific guidelines,
-and both a build cache and a configuration cache (see `gradle.properties`).
+Infrastructure modules depend on `:base-infrastructure` to access shared resource information like the `NotificationBus` name.
+
+---
+"A beginning is the time for taking the most delicate care that the balances are correct." - Dune
