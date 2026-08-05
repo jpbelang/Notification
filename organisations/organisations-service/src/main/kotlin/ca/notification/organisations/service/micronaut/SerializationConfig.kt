@@ -8,6 +8,7 @@ import ca.notification.organisations.service.domain.OrganisationParticipantAdded
 import ca.notification.organisations.service.domain.OrganisationParticipantRemovedPayload
 import ca.notification.organisations.service.domain.Participant
 import ca.notification.organisations.service.domain.TypedUUID
+import ca.notification.organisations.service.domain.AuthenticatedUser
 import io.micronaut.serde.annotation.SerdeImport
 
 @SerdeImport(OrganisationRequest::class)
@@ -18,4 +19,5 @@ import io.micronaut.serde.annotation.SerdeImport
 @SerdeImport(OrganisationParticipantRemovedPayload::class)
 @SerdeImport(Participant::class)
 @SerdeImport(TypedUUID::class)
+@SerdeImport(AuthenticatedUser::class)
 class SerializationConfig

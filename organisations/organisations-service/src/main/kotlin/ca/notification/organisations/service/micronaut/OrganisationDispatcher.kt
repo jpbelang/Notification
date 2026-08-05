@@ -4,6 +4,7 @@ import ca.notification.organisations.service.delivery.lambda.AddParticipantReque
 import ca.notification.organisations.service.delivery.lambda.OrganisationHandler
 import ca.notification.organisations.service.delivery.lambda.OrganisationRequest
 import ca.notification.organisations.service.delivery.lambda.OrganisationResponse
+import ca.notification.organisations.service.domain.AuthenticatedUser
 import ca.notification.organisations.service.domain.OrganisationNotFoundException
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -18,38 +19,38 @@ class OrganisationDispatcher(private val organisationHandler: OrganisationHandle
 
     @Post("/")
     @Status(HttpStatus.CREATED)
-    fun create(@Body request: OrganisationRequest): OrganisationResponse {
+    fun create(@Body request: OrganisationRequest, user: AuthenticatedUser?): OrganisationResponse {
         return organisationHandler.create(request)
     }
 
     @Get("/{id}")
-    fun findById(id: String): OrganisationResponse {
+    fun findById(id: String, user: AuthenticatedUser?): OrganisationResponse {
         return organisationHandler.findById(id) ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "Organisation not found")
     }
 
     @Get("/")
-    fun findAll(): List<OrganisationResponse> {
+    fun findAll(user: AuthenticatedUser?): List<OrganisationResponse> {
         return organisationHandler.findAll()
     }
 
     @Put("/{id}")
-    fun update(id: String, @Body request: OrganisationRequest): OrganisationResponse {
+    fun update(id: String, @Body request: OrganisationRequest, user: AuthenticatedUser?): OrganisationResponse {
         return organisationHandler.update(id, request)
     }
 
     @Delete("/{id}")
     @Status(HttpStatus.NO_CONTENT)
-    fun delete(id: String) {
+    fun delete(id: String, user: AuthenticatedUser?) {
         organisationHandler.delete(id)
     }
 
     @Post("/{id}/participants")
-    fun addParticipant(id: String, @Body request: AddParticipantRequest): OrganisationResponse {
+    fun addParticipant(id: String, @Body request: AddParticipantRequest, user: AuthenticatedUser?): OrganisationResponse {
         return organisationHandler.addParticipant(id, request)
     }
 
     @Delete("/{id}/participants/{participantId}")
-    fun removeParticipant(id: String, participantId: String): OrganisationResponse {
+    fun removeParticipant(id: String, participantId: String, user: AuthenticatedUser?): OrganisationResponse {
         return organisationHandler.removeParticipant(id, participantId)
     }
 
