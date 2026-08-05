@@ -2,12 +2,8 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.*
 import ca.notification.users.service.port.outbound.CredentialsRepository
-import io.micronaut.context.annotation.Requires
-import jakarta.inject.Singleton
 import java.util.concurrent.ConcurrentHashMap
 
-@Singleton
-@Requires(property = "micronaut.environment", value = "local", defaultValue = "local")
 class InMemoryCredentialsRepository : CredentialsRepository {
     private val credentials = ConcurrentHashMap<TypedUUID<User>, UserCredentials>()
 

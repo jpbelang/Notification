@@ -18,6 +18,7 @@
 - Use Kotlin standard library functions (e.g., `apply`, `also`, `let`, `run`) for concise code.
 - Ensure all new logic is covered by unit tests.
 - if the http schema changes, update the corresponding intellij http tests for the affected service.
+- Micronaut annotations should only be used in micronaut factories, unless absolutely necessary.
 
 ## Project Structure
 - Multi-module setup:

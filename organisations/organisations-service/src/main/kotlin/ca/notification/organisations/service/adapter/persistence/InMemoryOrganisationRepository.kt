@@ -4,13 +4,9 @@ import ca.notification.organisations.service.domain.Organisation
 import ca.notification.organisations.service.domain.Participant
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
-import io.micronaut.context.annotation.Requires
-import jakarta.inject.Singleton
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-@Singleton
-@Requires(property = "micronaut.environment", notEquals = "lambda")
 class InMemoryOrganisationRepository : OrganisationRepository {
     private val organisations = ConcurrentHashMap<TypedUUID<Organisation>, Organisation>()
     private val participants = ConcurrentHashMap<TypedUUID<Organisation>, MutableList<Participant>>()

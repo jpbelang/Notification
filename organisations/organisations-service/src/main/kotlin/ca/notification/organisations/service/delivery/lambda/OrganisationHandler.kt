@@ -4,10 +4,8 @@ import ca.notification.organisations.service.domain.Organisation
 import ca.notification.organisations.service.domain.Role
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.inbound.*
-import jakarta.inject.Singleton
 import java.util.UUID
 
-@Singleton
 class OrganisationHandler(
     private val createOrganisationUseCase: CreateOrganisationUseCase,
     private val findOrganisationUseCase: FindOrganisationUseCase,

@@ -5,18 +5,13 @@ import ca.notification.organisations.service.domain.Participant
 import ca.notification.organisations.service.domain.Role
 import ca.notification.organisations.service.domain.TypedUUID
 import ca.notification.organisations.service.port.outbound.OrganisationRepository
-import io.micronaut.context.annotation.Property
-import io.micronaut.context.annotation.Requires
-import jakarta.inject.Singleton
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.*
 import java.util.UUID
 
-@Singleton
-@Requires(property = "micronaut.environment", value = "lambda")
 class DynamoOrganisationRepository(
     private val dynamoDbClient: DynamoDbClient,
-    @Property(name = "dynamodb.table-name") private val tableName: String
+    private val tableName: String
 ) : OrganisationRepository {
 
     override fun save(organisation: Organisation) {

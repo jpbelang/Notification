@@ -3,17 +3,12 @@ package ca.notification.users.service.adapter.persistence
 import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.port.outbound.UserRepository
-import io.micronaut.context.annotation.Property
-import io.micronaut.context.annotation.Requires
-import jakarta.inject.Singleton
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.*
 
-@Singleton
-@Requires(property = "micronaut.environment", value = "lambda")
 class DynamoUserRepository(
     private val dynamoDbClient: DynamoDbClient,
-    @Property(name = "dynamodb.table-name") private val tableName: String
+    private val tableName: String
 ) : UserRepository {
 
     override fun save(user: User) {

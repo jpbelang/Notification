@@ -1,5 +1,17 @@
 package ca.notification.users.service.micronaut
 
+import ca.notification.users.service.port.inbound.ProcessOrganisationNotificationUseCase
+import ca.notification.users.service.port.outbound.UserRepository
+import ca.notification.users.service.port.outbound.CredentialsRepository
+import ca.notification.users.service.adapter.persistence.DynamoUserRepository
+import ca.notification.users.service.adapter.persistence.InMemoryUserRepository
+import ca.notification.users.service.adapter.persistence.CognitoCredentialsRepository
+import ca.notification.users.service.adapter.persistence.InMemoryCredentialsRepository
+import ca.notification.users.service.delivery.lambda.UserHandler
+import ca.notification.users.service.delivery.lambda.OrganisationNotificationHandler
+import io.micronaut.context.annotation.Property
+import io.micronaut.context.annotation.Requires
+import io.micronaut.context.annotation.Primary
 import io.micronaut.context.annotation.Factory
 import jakarta.inject.Singleton
 import jakarta.inject.Provider
@@ -14,12 +26,6 @@ import ca.notification.users.service.port.inbound.CreateUserUseCase
 import ca.notification.users.service.port.inbound.DeleteUserUseCase
 import ca.notification.users.service.port.inbound.FindUserUseCase
 import ca.notification.users.service.port.inbound.UpdateUserUseCase
-import ca.notification.users.service.port.inbound.ProcessOrganisationNotificationUseCase
-import ca.notification.users.service.port.outbound.UserRepository
-import ca.notification.users.service.port.outbound.CredentialsRepository
-import ca.notification.users.service.delivery.lambda.UserHandler
-import ca.notification.users.service.delivery.lambda.OrganisationNotificationHandler
-import io.micronaut.context.annotation.Primary
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 
@@ -66,6 +72,37 @@ class ServiceFactory {
     @Singleton
     fun processOrganisationNotificationUseCase(): ProcessOrganisationNotificationUseCase {
         return ProcessOrganisationNotificationService()
+    }
+
+    @Singleton
+    @Requires(property = "micronaut.environment", value = "lambda")
+    fun userRepository(
+        dynamoDbClient: DynamoDbClient,
+        @Property(name = "dynamodb.table-name") tableName: String
+    ): DynamoUserRepository {
+        return DynamoUserRepository(dynamoDbClient, tableName)
+    }
+
+    @Singleton
+    @Requires(property = "micronaut.environment", value = "local", defaultValue = "local")
+    fun inMemoryUserRepository(): InMemoryUserRepository {
+        return InMemoryUserRepository()
+    }
+
+    @Singleton
+    @Requires(property = "micronaut.environment", value = "lambda")
+    fun credentialsRepository(
+        cognitoClient: CognitoIdentityProviderClient,
+        @Property(name = "cognito.user-pool-id") userPoolId: String,
+        @Property(name = "cognito.user-pool-client-id") userPoolClientId: String
+    ): CognitoCredentialsRepository {
+        return CognitoCredentialsRepository(cognitoClient, userPoolId, userPoolClientId)
+    }
+
+    @Singleton
+    @Requires(property = "micronaut.environment", value = "local", defaultValue = "local")
+    fun inMemoryCredentialsRepository(): InMemoryCredentialsRepository {
+        return InMemoryCredentialsRepository()
     }
 
     @Singleton

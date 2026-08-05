@@ -2,9 +2,6 @@ package ca.notification.users.service.adapter.persistence
 
 import ca.notification.users.service.domain.*
 import ca.notification.users.service.port.outbound.CredentialsRepository
-import io.micronaut.context.annotation.Property
-import io.micronaut.context.annotation.Requires
-import jakarta.inject.Singleton
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminDeleteUserRequest
@@ -16,12 +13,10 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.NotAuthoriz
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserNotFoundException
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException
 
-@Singleton
-@Requires(property = "micronaut.environment", value = "lambda")
 class CognitoCredentialsRepository(
     private val cognitoClient: CognitoIdentityProviderClient,
-    @Property(name = "cognito.user-pool-id") private val userPoolId: String,
-    @Property(name = "cognito.user-pool-client-id") private val userPoolClientId: String
+    private val userPoolId: String,
+    private val userPoolClientId: String
 ) : CredentialsRepository {
 
     override fun save(user: NewUser): TypedUUID<User> {

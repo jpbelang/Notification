@@ -4,12 +4,8 @@ import ca.notification.users.service.domain.TypedUUID
 import ca.notification.users.service.domain.User
 import ca.notification.users.service.domain.UserExistsException
 import ca.notification.users.service.port.outbound.UserRepository
-import io.micronaut.context.annotation.Requires
-import jakarta.inject.Singleton
 import java.util.concurrent.ConcurrentHashMap
 
-@Singleton
-@Requires(property = "micronaut.environment", value = "local", defaultValue = "local")
 class InMemoryUserRepository : UserRepository {
     private val users = ConcurrentHashMap<TypedUUID<User>, PersistentUser>()
 
