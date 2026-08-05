@@ -109,10 +109,16 @@ class UsersInfrastructureStack(
             .visibilityTimeout(Duration.seconds(30))
             .build()
 
-        Rule.Builder.create(this, "NewOrganisationRule")
+        Rule.Builder.create(this, "OrganisationEventsRule")
             .eventBus(notificationBus)
             .eventPattern(EventPattern.builder()
-                .detailType(listOf("NewOrganisation"))
+                .detailType(listOf(
+                    "NewOrganisation",
+                    "UpdatedOrganisation",
+                    "DeletedOrganisation",
+                    "OrganisationParticipantAdded",
+                    "OrganisationParticipantRemoved"
+                ))
                 .build())
             .targets(listOf(SqsQueue.Builder.create(notificationQueue).build()))
             .build()
