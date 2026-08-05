@@ -15,18 +15,24 @@ class OrganisationNotificationDispatcherTest(
 ) : StringSpec({
 
     "should process SQS event via Micronaut dispatcher" {
-        val dispatcher = applicationContext.createBean(OrganisationNotificationDispatcher::class.java)
-        
-        val event = SQSEvent().apply {
-            records = listOf(
-                SQSEvent.SQSMessage().apply {
-                    body = "hello from dispatcher test"
-                }
-            )
-        }
+        try {
+            System.setProperty("aws.region", "us-east-1")
+            val dispatcher = applicationContext.createBean(OrganisationNotificationDispatcher::class.java)
 
-        dispatcher.execute(event)
-        
-        // Success if no exception is thrown and wiring worked
+            val event = SQSEvent().apply {
+                records = listOf(
+                    SQSEvent.SQSMessage().apply {
+                        body = "hello from dispatcher test"
+                    }
+                )
+            }
+
+            dispatcher.execute(event)
+
+            // Success if no exception is thrown and wiring worked
+        } finally {
+            System.clearProperty("aws.region")
+        }
     }
 })
+

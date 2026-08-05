@@ -98,10 +98,8 @@ class ServiceFactory {
     }
 
     @Singleton @Primary
-    fun dynamoDbClient(): Provider<DynamoDbClient> {
-        // fix me ?
-        print("building client")
-        return Provider { DynamoDbClient.builder().build() }
+    fun dynamoDbClient(): DynamoDbClient {
+        return DynamoDbClient.builder().build()
     }
 
 }
